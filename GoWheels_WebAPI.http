@@ -1,0 +1,6 @@
+@GoWheels_WebAPI_HostAddress = http://localhost:5027
+
+GET {{GoWheels_WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
