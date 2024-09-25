@@ -1,4 +1,5 @@
-﻿using GoWheels_WebAPI.Models.Entities;
+﻿using GoWheels_WebAPI.Models.DTOs;
+using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.AspNetCore.Identity;
@@ -51,8 +52,10 @@ namespace GoWheels_WebAPI.Service
                 return "Login failed";
             }
             var token = await GenerateJwtToken(user);
+
             return token;
         }
+
         private async Task<string> GenerateJwtToken(ApplicationUser user)
         {
             var authClaims = new List<Claim>
