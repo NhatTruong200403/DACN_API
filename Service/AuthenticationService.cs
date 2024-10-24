@@ -26,7 +26,7 @@ namespace GoWheels_WebAPI.Service
             {
                 Name = signUpViewModel.UserName,
                 Email = signUpViewModel.Email,
-                UserName = signUpViewModel.Email,
+                UserName = signUpViewModel.UserName,
                 Image = "https://localhost:7265/images/ImageUser/user.png"
             };
             var result = await _autheticationRepository.CreateUserAsync(user, signUpViewModel.Password);
@@ -41,7 +41,7 @@ namespace GoWheels_WebAPI.Service
 
         public async Task<string> LoginAsync(LoginVM loginViewModel)
         {
-            var user = await _autheticationRepository.FindByUserNameAsync(loginViewModel.Email);
+            var user = await _autheticationRepository.FindByEmailAsync(loginViewModel.Email);
             if (user == null)
             {
                throw new InvalidOperationException("User not found");
@@ -103,7 +103,7 @@ namespace GoWheels_WebAPI.Service
                     return null;
                 }
 
-                var user = await _autheticationRepository.FindByUserNameAsync(userName);
+                var user = await _autheticationRepository.FindByIdAsync(userId);
                 if (user == null)
                 {
                     return null;

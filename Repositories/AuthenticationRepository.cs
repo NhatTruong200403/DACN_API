@@ -35,7 +35,11 @@ namespace GoWheels_WebAPI.Repositories
                 await _roleManager.CreateAsync(new IdentityRole(roleName));
             }
         }
-
+        public async Task<ApplicationUser?> FindByIdAsync(string id)
+            => await _userManager.FindByIdAsync(id);
+        
+        public async Task<ApplicationUser?> FindByEmailAsync(string email)
+            => await _userManager.FindByEmailAsync(email);
         public async Task<ApplicationUser?> FindByUserNameAsync(string userName) 
             => await _userManager.FindByNameAsync(userName);
 

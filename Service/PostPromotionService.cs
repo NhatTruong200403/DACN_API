@@ -38,7 +38,5 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
         }
-
-        public async Task AddRangeAsync(Promotion promotion, List<int>)
     }
 }
