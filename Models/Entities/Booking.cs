@@ -21,7 +21,7 @@ namespace GoWheels_WebAPI.Models.Entities
         public string? UserId { get; set; }
         [ValidateNever]
         public ApplicationUser User { get; set; } = null!;
-        public int PromotionId { get; set; }
+        public int? PromotionId { get; set; }
         [ValidateNever]
         public Promotion Promotion { get; set; } = null!;
     }
