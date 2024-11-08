@@ -11,6 +11,6 @@ namespace GoWheels_WebAPI.Models.DTOs
         public DateTime RecieveOn { get; set; }
         public DateTime ReturnOn { get; set; }
         public int PostId { get; set; }
-        public int PromotionId { get; set; }
+        public int? PromotionId { get; set; }
     }
 }

@@ -305,10 +305,6 @@ namespace GoWheels_WebAPI.Service
                 post.RideNumber += rideNumber;
                 await _postRepository.UpdateAsync(post);
             }
-            catch(NullReferenceException nullEx)
-            {
-                throw new NullReferenceException(nullEx.Message);
-            }
             catch (DbUpdateException dbEx)
             {
                 var dbExMessage = dbEx.InnerException?.Message ?? "An error occurred while updating the database.";
@@ -317,7 +313,7 @@ namespace GoWheels_WebAPI.Service
             catch (Exception ex)
             {
                 var exMessage = ex.InnerException?.Message ?? "An error occurred while updating the database.";
-                throw new Exception(exMessage);
+                throw new InvalidOperationException(exMessage);
             }
 
         }

@@ -137,7 +137,7 @@ namespace GoWheels_WebAPI.Controllers.Admin
             }
         }
 
-        [HttpPut("Update/{id}")]
+        [HttpPost("Update/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<OperationResult>> UpdateAsync(int id, [FromForm] PromotionDTO promotionDTO)
         {

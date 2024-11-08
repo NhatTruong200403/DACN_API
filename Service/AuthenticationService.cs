@@ -34,7 +34,7 @@ namespace GoWheels_WebAPI.Service
                 Name = signUpViewModel.UserName,
                 Email = signUpViewModel.Email,
                 UserName = signUpViewModel.Email,
-                Image = "https://localhost:7265/images/ImageUser/user.png"
+                Image = "images/ImageUser/user.png"
             };
             var result = await _autheticationRepository.CreateUserAsync(user, signUpViewModel.Password);
             if (!result.Succeeded)
@@ -58,16 +58,6 @@ namespace GoWheels_WebAPI.Service
             {
                 throw new InvalidOperationException("Wrong email or password");
             }
-            if (user.LockoutEnabled)
-            {
-                if (user.LockoutEnd.HasValue)
-                {
-                    var lockoutDay = (user.LockoutEnd!.Value - DateTime.Now).TotalDays;
-                    if (lockoutDay <= 7)
-                        return "Account banned until: " + user.LockoutEnd.ToString();
-                    return "Account permanently banned";
-                }    
-            }    
             var token = await GenerateJwtToken(user);
 
             return token;
