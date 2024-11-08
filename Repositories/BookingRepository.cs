@@ -35,6 +35,8 @@ namespace GoWheels_WebAPI.Repositories
                                         .Include(b => b.Post)
                                         .Where(b => !b.IsDeleted).ToListAsync();
 
+
+
         public async Task<List<Booking>> GetAllByPostIdAsync(int postId)
                         => await _context.Bookings.AsNoTracking()
                                         .Include(b => b.User)
@@ -76,6 +78,14 @@ namespace GoWheels_WebAPI.Repositories
                                         .Include(b => b.User)
                                         .Where(b => b.Post.UserId == userId && b.Status == "Pending" && !b.IsPay)
                                         .ToListAsync();
+
+        public async Task<List<Booking>> GetAllCompleteBookingsAsync()
+            => await _context.Bookings.AsNoTracking()
+                                        .Include(b => b.Post)
+                                        .Include(b => b.User)
+                                        .Where(b => b.RecieveOn <= DateTime.Now && b.IsPay && !b.Post.IsDisabled)
+                                        .ToListAsync();
+                                        
 
         public async Task<Booking> GetByIdAsync(int id)
             => await _context.Bookings.AsNoTracking()

@@ -57,6 +57,16 @@ namespace GoWheels_WebAPI.Service
             {
                 throw new InvalidOperationException("Wrong email or password");
             }
+            if (user.LockoutEnabled)
+            {
+                if (user.LockoutEnd.HasValue)
+                {
+                    var lockoutDay = (user.LockoutEnd!.Value - DateTime.Now).TotalDays;
+                    if (lockoutDay <= 7)
+                        return "Account banned until: " + user.LockoutEnd.ToString();
+                    return "Account permanently banned";
+                }    
+            }    
             var token = await GenerateJwtToken(user);
 
             return token;

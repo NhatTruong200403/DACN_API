@@ -35,6 +35,8 @@ namespace GoWheels_WebAPI.Repositories
                                         .ThenInclude(p => p.Post)
                                         .ToListAsync();
 
+
+
         public async Task<Promotion> GetByIdAsync(int id) 
             => await _context.Promotions.AsNoTracking()
                                         .Include(p => p.PostPromotions)

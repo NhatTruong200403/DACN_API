@@ -3,6 +3,7 @@ using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace GoWheels_WebAPI.Service
 {
@@ -10,12 +11,14 @@ namespace GoWheels_WebAPI.Service
     {
         private readonly BookingService _bookingService;
         private readonly PostService _postService;
+        private readonly ILogger<StartupService> _logger;
         private readonly IMapper _mapper;
 
-        public StartupService(BookingService bookingService, PostService postService, IMapper mapper)
+        public StartupService(BookingService bookingService, PostService postService, ILogger<StartupService> logger, IMapper mapper)
         {
             _bookingService = bookingService;
             _postService = postService;
+            _logger = logger;
             _mapper = mapper;
         }
 
@@ -25,55 +28,64 @@ namespace GoWheels_WebAPI.Service
             {
                 await _bookingService.UpdateBookingStatus();
             }
-            catch(NullReferenceException nullEx)
+            catch (InvalidOperationException operationEx)
             {
-                throw new NullReferenceException(nullEx.Message);
+                Debug.WriteLine("An error occurred: " + operationEx.Message);
+                Debug.WriteLine("Stack Trace: " + operationEx.StackTrace);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                Debug.WriteLine("An error occurred: " + nullEx.Message);
+                Debug.WriteLine("Stack Trace: " + nullEx.StackTrace);
             }
             catch (DbUpdateException dbEx)
             {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.InnerException!.Message);
+                Debug.WriteLine("An error occurred: " + dbEx.Message);
+                Debug.WriteLine("Stack Trace: " + dbEx.StackTrace);
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                Debug.WriteLine("An error occurred: " + ex.Message);
+                Debug.WriteLine("Stack Trace: " + ex.StackTrace);
             }
         }
 
         public async Task UpdatePostOnStartup()
         {
-            try
+            var bookings = await _bookingService.GetAllCompleteBookingAsync();
+            foreach (var booking in bookings)
             {
-                var bookings = await _bookingService.GetAllAsync();
-                foreach (var booking in bookings)
+                try
                 {
-                    if (booking.RecieveOn <= DateTime.Now && booking.IsPay && !booking.IsRideCounted)
+                    if (!booking.IsRideCounted)
                     {
                         await _postService.UpdateRideNumberAsync(booking.PostId, 1);
                         booking.IsRideCounted = true;
                         await _bookingService.UpdateAsync(booking.Id, booking);
                     }
                 }
+                catch (InvalidOperationException operationEx)
+                {
+                    Debug.WriteLine("An error occurred: " + operationEx.Message);
+                    Debug.WriteLine("Stack Trace: " + operationEx.StackTrace);
+                }
+                catch (NullReferenceException nullEx)
+                {
+                    Debug.WriteLine("An error occurred: " + nullEx.Message);
+                    Debug.WriteLine("Stack Trace: " + nullEx.StackTrace);
+                }
+                catch (DbUpdateException dbEx)
+                {
+                    Debug.WriteLine("An error occurred: " + dbEx.Message);
+                    Debug.WriteLine("Stack Trace: " + dbEx.StackTrace);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("An error occurred: " + ex.Message);
+                    Debug.WriteLine("Stack Trace: " + ex.StackTrace);
+                }
             }
-            catch (NullReferenceException)
-            {
-                return;
-            }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.InnerException!.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            
         }
     }
 }

@@ -59,6 +59,15 @@ namespace GoWheels_WebAPI.Service
             {
                 var user = await _autheticationRepository.FindByUserIdAsync(userId);
                 user.ReportPoint += reportPoint;
+                if (user.ReportPoint > 10)
+                {
+                    user.LockoutEnabled = true;
+                    user.LockoutEnd = DateTime.Now.AddDays(7);
+                }
+                if(user.ReportPoint > 15)
+                {
+                    user.LockoutEnd = DateTime.Now.AddYears(1000);
+                }
                 await _autheticationRepository.UpdateAsync(user);
             }
             catch (NullReferenceException nullEx)
