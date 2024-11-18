@@ -28,7 +28,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpGet("GetPersonalInvoices")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> GetPersonalInvoicesAsync()
+        public async Task<ActionResult<OperationResult>> GetPersonalInvoicesAsync()  //tất cả invoice của User đang đăng nhập
         {
             try
             {
@@ -49,7 +49,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpGet("GetAllByDriver")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> GetAllByDriverAsync()
+        public async Task<ActionResult<OperationResult>> GetAllByDriverAsync()  // dành cho driver
         {
             try
             {
