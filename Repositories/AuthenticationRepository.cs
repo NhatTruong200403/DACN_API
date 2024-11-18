@@ -3,6 +3,7 @@ using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 
@@ -27,7 +28,17 @@ namespace GoWheels_WebAPI.Repositories
             => await _userManager.Users.Where(u => u.IsSubmitDriver).ToListAsync(); 
 
         public async Task AddUserToRoleAsync(ApplicationUser user, string roleName)
-             => await _userManager.AddToRoleAsync(user, roleName);
+        {
+            var trackedUser = _context.ChangeTracker.Entries<IdentityUser>().FirstOrDefault(b => b.Entity.Id == user.Id);
+            if (trackedUser != null)
+            {
+                _context.Entry(trackedUser.Entity).State = EntityState.Detached;
+            }
+            _context.Entry(user).State = EntityState.Modified;
+            await _userManager.AddToRoleAsync(user, roleName);
+            _context.Entry(user).State = EntityState.Detached;
+        }    
+
 
         public async Task<IdentityResult> CreateUserAsync(ApplicationUser user, string password)
             => await _userManager.CreateAsync(user, password);

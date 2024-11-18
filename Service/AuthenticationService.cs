@@ -148,7 +148,7 @@ namespace GoWheels_WebAPI.Service
                     Image = user.Image,
                     ReportPoint = user.ReportPoint,
                     Birthday = user.Birthday,
-                    Role = userRoles.FirstOrDefault(),
+                    Roles = userRoles,
                 };
             }
             catch (Exception ex)

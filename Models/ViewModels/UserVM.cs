@@ -10,6 +10,6 @@
         public string? Image { get; set; }
         public int? ReportPoint {  get; set; }
         public DateTime? Birthday { get; set; }
-        public string? Role { get; set; }
+        public IList<string> Roles { get; set; } = new List<string>();
     }
 }

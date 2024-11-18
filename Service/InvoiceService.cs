@@ -223,15 +223,13 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
-                var refundInvoice = new Invoice()
-                {
-                    PrePayment = -booking.PrePayment,
-                    ReturnOn = DateTime.Now,
-                    CreatedOn = DateTime.Now,
-                    CreatedById = _userId,
-                    BookingId = booking.Id,
-                };
-                await _invoiceRepository.AddAsync(refundInvoice);
+                var invoice = await _invoiceRepository.GetByBookingIdAsync(booking.Id);
+                invoice.ModifiedById = _userId;
+                invoice.ModifiedOn = DateTime.Now;
+                invoice.DriverBookingId = null!;
+                invoice.DriverBooking = null!;
+                invoice.RefundInvoice = true!;
+                await _invoiceRepository.UpdateAsync(invoice);
             }
             catch (DbUpdateException dbEx)
             {

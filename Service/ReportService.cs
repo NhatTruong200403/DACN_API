@@ -89,7 +89,7 @@ namespace GoWheels_WebAPI.Service
                     var bookings = await _bookingService.GetAllUnRecieveBookingsByPostIdAsync(post.Id);
                     foreach (var booking in bookings)
                     {
-                        await _bookingService.CancelReportedBookingsAsync(booking);
+                        await _bookingService.ExamineCancelBookingRequestAsync(booking, true);
                         if (booking.IsPay)
                         {
                             await _invoiceService.RefundReportedBookingAsync(booking);
