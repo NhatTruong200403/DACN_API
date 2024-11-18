@@ -135,9 +135,19 @@ namespace GoWheels_WebAPI.Service
 
         public async Task SendDriverSubmitAsync()
         {
+
             try
             {
                 var user = await _autheticationRepository.FindByUserIdAsync(_userId);
+                var userRole = _httpContextAccessor.HttpContext!.User.IsInRole("Driver");
+                if (userRole)
+                {
+                    throw new InvalidOperationException("Account is already a driver");
+                }
+                if (user.IsSubmitDriver)
+                {
+                    throw new InvalidOperationException("Submit already sent");
+                }
                 if (user.License.IsNullOrEmpty() || user.CIC.IsNullOrEmpty())
                 {
                     throw new InvalidOperationException("License & CIC required");

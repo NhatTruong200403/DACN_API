@@ -144,6 +144,7 @@ namespace GoWheels_WebAPI.Service
                     CIC = user.CIC,
                     PhoneNumber = user.PhoneNumber,
                     License = user.License,
+                    CIC = user.CIC,
                     Image = user.Image,
                     ReportPoint = user.ReportPoint,
                     Birthday = user.Birthday,
