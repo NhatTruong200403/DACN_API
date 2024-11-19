@@ -39,7 +39,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpGet("GetAllDriverBookings")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> GetAllDriverBookingsByUserIdAsync()     //Get tất cả booking của Tài xế đó
+        public async Task<ActionResult<OperationResult>> GetAllDriverBookingsByUserIdAsync() // Booking . GetAllByDriver ==   Get tất cả booking của Tài xế đó
         {
             try
             {

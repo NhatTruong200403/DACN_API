@@ -110,7 +110,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpGet("GetAllByDriver")]
-        public async Task<ActionResult<OperationResult>> GetAllByDriverAsync()
+        public async Task<ActionResult<OperationResult>> GetAllByDriverAsync() 
         {
             try
             {
@@ -183,7 +183,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPost("SendCancelRequest/{id}")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> SendCancelRequestBookingAsync(int id)  //Hủy đơn đjăt xe từ User
+        public async Task<ActionResult<OperationResult>> SendCancelRequestBookingAsync(int id)  //Hủy đơn đjăt xe từ User RỒI NHA
         {
             try
             {
