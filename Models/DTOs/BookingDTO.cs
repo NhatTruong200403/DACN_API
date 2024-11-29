@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
 namespace GoWheels_WebAPI.Models.DTOs
@@ -11,6 +12,10 @@ namespace GoWheels_WebAPI.Models.DTOs
         public decimal FinalValue { get; set; }
         public DateTime RecieveOn { get; set; }
         public DateTime ReturnOn { get; set; }
+        [Required]
+        public string? Longitude { get; set; }
+        [Required]
+        public string? Latitude { get; set; }
         public bool IsRequireDriver { get; set; }
         public int PostId { get; set; }
 

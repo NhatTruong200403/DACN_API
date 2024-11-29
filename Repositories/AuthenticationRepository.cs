@@ -27,6 +27,9 @@ namespace GoWheels_WebAPI.Repositories
         public async Task<List<ApplicationUser>> GetAllSubmitDriversAsync()
             => await _userManager.Users.Where(u => u.IsSubmitDriver).ToListAsync(); 
 
+        public async Task<List<ApplicationUser>> GetAllUserAsync()
+            => await _userManager.Users.ToListAsync();
+
         public async Task AddUserToRoleAsync(ApplicationUser user, string roleName)
         {
             var trackedUser = _context.ChangeTracker.Entries<IdentityUser>().FirstOrDefault(b => b.Entity.Id == user.Id);
@@ -50,6 +53,13 @@ namespace GoWheels_WebAPI.Repositories
                 await _roleManager.CreateAsync(new IdentityRole(roleName));
             }
         }
+
+        public async Task<bool> CheckValidPasswordAsync(ApplicationUser user, string password)
+            => await _userManager.CheckPasswordAsync(user, password);
+        
+        public async Task ChangePasswordAsyncAsync(ApplicationUser user, string currentPassword, string newPassword)
+            => await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+
 
         public async Task<ApplicationUser> FindByUserIdAsync(string userId)
             => await _userManager.FindByIdAsync(userId) ?? throw new NullReferenceException("User not found");
@@ -75,5 +85,8 @@ namespace GoWheels_WebAPI.Repositories
 
         public async Task<bool> ValidatePasswordAsync(ApplicationUser user, string password)
             => await _userManager.CheckPasswordAsync(user, password);
+
+        public async Task<bool> IsInRoleAsync(ApplicationUser user, string roleName)
+            => await _userManager.IsInRoleAsync(user, roleName);
     }
 }

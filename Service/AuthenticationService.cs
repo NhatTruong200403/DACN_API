@@ -1,4 +1,5 @@
-﻿using GoWheels_WebAPI.Models.DTOs;
+﻿using AutoMapper;
+using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories.Interface;
@@ -8,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 namespace GoWheels_WebAPI.Service
 {
@@ -15,13 +17,18 @@ namespace GoWheels_WebAPI.Service
     {
         private readonly IUserRepository _autheticationRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMapper _mapper;
         private readonly string _userId;
         private readonly IConfiguration _config;
 
-        public AuthenticationService(IUserRepository autheticationRepository, IHttpContextAccessor httpContextAccessor, IConfiguration config)
+        public AuthenticationService(IUserRepository autheticationRepository, 
+                                        IHttpContextAccessor httpContextAccessor, 
+                                        IMapper mapper,
+                                        IConfiguration config)
         {
             _autheticationRepository = autheticationRepository;
             _httpContextAccessor = httpContextAccessor;
+            _mapper = mapper;
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
             _config = config;
@@ -34,7 +41,7 @@ namespace GoWheels_WebAPI.Service
                 Name = signUpViewModel.UserName,
                 Email = signUpViewModel.Email,
                 UserName = signUpViewModel.Email,
-                Image = "https://localhost:7265/images/ImageUser/user.png"
+                Image = "images/ImageUser/user.png"
             };
             var result = await _autheticationRepository.CreateUserAsync(user, signUpViewModel.Password);
             if (!result.Succeeded)
@@ -44,6 +51,15 @@ namespace GoWheels_WebAPI.Service
             await _autheticationRepository.EnsureRoleExistsAsync(ApplicationRole.User);
             await _autheticationRepository.AddUserToRoleAsync(user, ApplicationRole.User);
             return result;
+        }
+
+        public void RemoveUserFromSession()
+        {
+            var session = _httpContextAccessor?.HttpContext?.Session;
+            if (session != null)
+            {
+                session.Remove(_userId);
+            };
         }
 
         public async Task<string> LoginAsync(LoginVM loginViewModel)
@@ -67,9 +83,8 @@ namespace GoWheels_WebAPI.Service
                         return "Account banned until: " + user.LockoutEnd.ToString();
                     return "Account permanently banned";
                 }    
-            }    
+            }
             var token = await GenerateJwtToken(user);
-
             return token;
         }
 

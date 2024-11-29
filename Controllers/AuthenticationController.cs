@@ -1,6 +1,7 @@
 ﻿using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Service;
 using GoWheels_WebAPI.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,6 +43,13 @@ namespace GoWheels_WebAPI.Controllers
         {
             var result = await _authenService.SignUpAsync(signUpViewModel);
             return result;
+        }
+
+        [HttpPost("RemoveUserFromSession")]
+        [Authorize]
+        public void Logout()
+        {
+            _authenService.RemoveUserFromSession();
         }
 
         [HttpGet("CheckLockoutStatus")]

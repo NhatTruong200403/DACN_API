@@ -1,8 +1,11 @@
-﻿using GoWheels_WebAPI.Models.Entities;
+﻿using AutoMapper;
+using GoWheels_WebAPI.Models.Entities;
+using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace GoWheels_WebAPI.Service
 {
@@ -11,17 +14,20 @@ namespace GoWheels_WebAPI.Service
         private readonly IUserRepository _autheticationRepository;
         private readonly DriverService _driverService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMapper _mapper;
         private readonly string _userId;
         private readonly IConfiguration _config;
 
         public UserService(IUserRepository autheticationRepository,
                             DriverService driverService,
                             IHttpContextAccessor httpContextAccessor,
+                            IMapper mapper,
                             IConfiguration config)
         {
             _autheticationRepository = autheticationRepository;
             _driverService = driverService;
             _httpContextAccessor = httpContextAccessor;
+            _mapper = mapper;
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
             _config = config;
@@ -29,6 +35,12 @@ namespace GoWheels_WebAPI.Service
 
         public async Task<List<ApplicationUser>> GetAllDriverSubmitAsync()
             => await _autheticationRepository.GetAllSubmitDriversAsync();
+
+        public async Task<List<ApplicationUser>> GetAllUserAsync()
+            => await _autheticationRepository.GetAllUserAsync();
+
+        public async Task<ApplicationUser> GetByUserIdAsync()
+            => await _autheticationRepository.FindByUserIdAsync(_userId);
 
         public async Task<string> SaveImage(IFormFile file)
         {
@@ -133,6 +145,32 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
+        public async Task UpdateDriverLocationAsync(string longitude, string latitude)
+        {
+            try
+            {
+                var user = await _autheticationRepository.FindByUserIdAsync(_userId);
+                var userVM = _mapper.Map<UserVM>(user);
+                userVM.Longitude = longitude;
+                userVM.Latitude = latitude;
+                AddUserToSession(userVM);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        private void AddUserToSession(UserVM userVM)
+        {
+            var session = _httpContextAccessor.HttpContext?.Session;
+            if (session != null)
+            {
+                var userToJson = JsonSerializer.Serialize(userVM);
+                session.SetString(userVM.Id!, userToJson);
+            }
+        }
+
         public async Task SendDriverSubmitAsync()
         {
 
@@ -151,7 +189,7 @@ namespace GoWheels_WebAPI.Service
                 if (user.License.IsNullOrEmpty() || user.CIC.IsNullOrEmpty())
                 {
                     throw new InvalidOperationException("License & CIC required");
-                }
+                } 
                 user.IsSubmitDriver = true;
                 await _autheticationRepository.UpdateAsync(user);
             }

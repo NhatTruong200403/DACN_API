@@ -10,6 +10,8 @@ namespace GoWheels_WebAPI.Models.Entities
         public required decimal FinalValue { get; set; }
         public required DateTime RecieveOn { get; set; }
         public required DateTime ReturnOn { get; set; }
+        public required string Longitude { get; set; }
+        public required string Latitude { get; set; }
         public required string Status { get; set; }
         public required bool OwnerConfirm { get; set; }
         public bool IsPay { get; set; }

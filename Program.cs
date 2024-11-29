@@ -57,6 +57,17 @@ builder.Services.AddCors(options =>
         });
 });
 builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<GoogleApiService>(client =>
+{
+    client.BaseAddress = new Uri("https://maps.googleapis.com/maps/api/distancematrix/");
+});
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(config =>
+{
+    config.Cookie.HttpOnly = true;
+    config.IdleTimeout = TimeSpan.FromMinutes(30);
+});
+
 builder.Services.AddControllers();
 //Register dependency service
 builder.Services.AddScoped<AdminPromotionService>();
@@ -79,6 +90,8 @@ builder.Services.AddScoped<FavoriteService>();
 builder.Services.AddScoped<IUserRepository, AuthenticationRepository>();
 builder.Services.AddScoped<InvoiceRepository>();
 builder.Services.AddScoped<InvoiceService>();
+builder.Services.AddScoped<NotifyRepository>();
+builder.Services.AddScoped<NotifyService>();
 builder.Services.AddScoped<PostAmenityRepository>();
 builder.Services.AddScoped<PostPromotionReposity>();
 builder.Services.AddScoped<PostPromotionService>();
@@ -152,6 +165,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseSession();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseDefaultFiles();

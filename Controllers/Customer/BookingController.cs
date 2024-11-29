@@ -85,7 +85,8 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
 
-        [HttpGet("GetAllDriverRequireBookings")] // getall cho tài xế
+        [HttpGet("GetAllDriverRequireBookings")]
+        [Authorize(Roles = "Driver")]// getall cho tài xế
         public async Task<ActionResult<OperationResult>> GetAllDriverRequireBookingsAsync()
         {
             try
@@ -250,13 +251,14 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        [HttpPut("ConfirmBooking")]
+        [HttpPut("ConfirmBooking")]//Chủ xe xác nhận đơn đặt từ khách hàng
         [Authorize(Roles = "User")]
         public async Task<ActionResult<OperationResult>> ConfirmBookingAsync([FromForm] int id,[FromForm] bool isAccept)
         {
             try
             {
                 await _bookingService.UpdateOwnerConfirmAsync(id, isAccept);
+                
                 if(isAccept)
                 {
                     await _invoiceService.CreateInvoiceAsync(id);

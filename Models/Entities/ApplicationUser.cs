@@ -13,8 +13,7 @@ namespace GoWheels_WebAPI.Models.Entities
         public bool IsSubmitDriver { get; set; }
         public bool isDriver { get; set; } = false!;
         public Driver Driver { get; set; } = null!;
-
-        public ICollection<UserNotify> userNotifications { get; set; } = new List<UserNotify>();
+        public ICollection<Notify> Notifications { get; set; } = new List<Notify>();
         public ICollection<Post> Posts { get; set; } = new List<Post>();
         public ICollection<Booking> Booking { get; set; } = new List<Booking>();
         public ICollection<Rating> Rating { get; set; } = new List<Rating>();

@@ -16,6 +16,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
     [ApiController]
     public class InvoiceController : ControllerBase
     {
+        public bool isMB { get; set; }
         private readonly InvoiceService _invoiceService;
         private readonly BookingService _bookingService;
         private readonly IMapper _mapper;
@@ -47,9 +48,10 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        [HttpGet("GetAllByDriver")]
-        [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> GetAllByDriverAsync()  // dành cho driver
+
+        [HttpGet("GetAllByDriver")]//Lấy các hóa đơn cá nhân của tài xế
+        [Authorize(Roles = "Driver")]
+        public async Task<ActionResult<OperationResult>> GetAllByDriverAsync()
         {
             try
             {
@@ -68,7 +70,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        public bool isMB { get; set; }
+
 
         [HttpPost("MomoPayment/{bookingId}")]
         [Authorize(Roles = "User")]

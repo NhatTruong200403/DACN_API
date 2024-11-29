@@ -12,6 +12,7 @@ namespace GoWheels_WebAPI.Service
     {
         private readonly BookingRepository _bookingRepository;
         private readonly PostService _postService;
+        private readonly DriverService _driverService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _userId;
@@ -19,11 +20,13 @@ namespace GoWheels_WebAPI.Service
 
         public BookingService(BookingRepository bookingRepository, 
                                 PostService postService,
+                                DriverService driverService,
                                 IMapper mapper, 
                                 IHttpContextAccessor httpContextAccessor)
         {
             _bookingRepository = bookingRepository;
             _postService = postService;
+            _driverService = driverService;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _userId = _httpContextAccessor.HttpContext?.User?
@@ -210,8 +213,12 @@ namespace GoWheels_WebAPI.Service
                 booking.ModifiedById = _userId;
                 booking.ModifiedOn = DateTime.Now;
                 booking.Status = isAccept ? "Accept Booking" : "Denied";
-                booking.OwnerConfirm = isAccept;
+                booking.OwnerConfirm = false;
                 await _bookingRepository.UpdateAsync(booking);
+                if(isAccept)
+                {
+                    await _driverService.SendNotifyToDrivers(booking);
+                }
             }
             catch (DbUpdateException dbEx)
             {

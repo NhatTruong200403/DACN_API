@@ -23,6 +23,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             _mapper = mapper;
         }
 
+
         [HttpPut("UpdateUserInfo")]
         [Authorize]
         public async Task<ActionResult<OperationResult>> UpdateUserInfoAsync([FromForm] UserDTO userDTO)
@@ -50,6 +51,8 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
             }
         }
+
+
 
         [HttpPut("SendSubmitDriver")]
         [Authorize(Roles = "User")]

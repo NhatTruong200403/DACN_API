@@ -27,6 +27,7 @@ namespace GoWheels_WebAPI.Data
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Driver> Drivers { get; set; }
         public DbSet<DriverBooking> DriverBookings { get; set; }
+        public DbSet<Notify> Notifications { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ApplicationUser>()

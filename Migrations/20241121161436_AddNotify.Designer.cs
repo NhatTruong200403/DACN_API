@@ -4,6 +4,7 @@ using GoWheels_WebAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GoWheels_WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241121161436_AddNotify")]
+    partial class AddNotify
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,8 +93,8 @@ namespace GoWheels_WebAPI.Migrations
                     b.Property<bool>("IsSubmitDriver")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Latitude")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("float");
 
                     b.Property<string>("License")
                         .HasColumnType("nvarchar(max)");
@@ -102,8 +105,8 @@ namespace GoWheels_WebAPI.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("Longitude")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("float");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -193,13 +196,11 @@ namespace GoWheels_WebAPI.Migrations
                     b.Property<bool>("IsRideCounted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Latitude")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
 
-                    b.Property<string>("Longitude")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
 
                     b.Property<string>("ModifiedById")
                         .HasColumnType("nvarchar(max)");
@@ -526,10 +527,11 @@ namespace GoWheels_WebAPI.Migrations
                     b.Property<DateTime>("CreateOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                    b.Property<string>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsRead")
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("Title")

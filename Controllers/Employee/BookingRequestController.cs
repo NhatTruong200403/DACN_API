@@ -33,7 +33,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
 
 
         [HttpGet("GetAllCancelRequest")]
-        public async Task<ActionResult<OperationResult>> GetAllCancelRequestAsync()     //Get tất cả các hủy booking 
+        public async Task<ActionResult<OperationResult>> GetAllCancelRequestAsync()//Get tất cả các hủy booking 
         {
             try
             {
