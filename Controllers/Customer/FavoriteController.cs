@@ -52,7 +52,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpPost("AddToFavorite")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromForm] FavoriteDTO favoriteDTO)
+        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] FavoriteDTO favoriteDTO)
         {
             try
             {

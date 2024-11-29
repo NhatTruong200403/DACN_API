@@ -215,7 +215,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPost("Add")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> AddAsync([FromForm] BookingDTO bookingDTO)
+        public async Task<ActionResult<OperationResult>> AddAsync([FromBody] BookingDTO bookingDTO)
         {
             try
             {

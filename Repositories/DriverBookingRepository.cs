@@ -23,6 +23,7 @@ namespace GoWheels_WebAPI.Repositories
             => await _context.DriverBookings.Include(d => d.Driver)
                                             .Include(d => d.Invoices)
                                             .ThenInclude(i => i.Booking)
+                                            .ThenInclude(i => i.Post)
                                             .Where(d => !d.IsDeleted && d.Driver.UserId == userId)
                                             .ToListAsync();
 

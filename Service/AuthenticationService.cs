@@ -141,6 +141,7 @@ namespace GoWheels_WebAPI.Service
                 {
                     Id = user.Id,
                     Name = user.Name,
+                    Email = user.Email,
                     CIC = user.CIC,
                     PhoneNumber = user.PhoneNumber,
                     License = user.License,

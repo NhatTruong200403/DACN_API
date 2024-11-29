@@ -24,7 +24,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPost("ReportByPostId")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<OperationResult>> ReportByPostId([FromForm]ReportDTO reportDTO)
+        public async Task<ActionResult<OperationResult>> ReportByPostId([FromBody]ReportDTO reportDTO)
         {
             try
             {

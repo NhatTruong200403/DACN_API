@@ -58,7 +58,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
 
 
         [HttpPost("ExamineCancelBooking/{bookingId}&&{isAccept}")]
-        public async Task<ActionResult<OperationResult>> ExamineCancelBookingAsync(int bookingId, bool isAccept) // Xác nhận hủy booking của User từ Employee
+        public async Task<ActionResult<OperationResult>> ExamineCancelBookingAsync(int bookingId, [FromForm] bool isAccept) // Xác nhận hủy booking của User từ Employee
         {
             try
             {
