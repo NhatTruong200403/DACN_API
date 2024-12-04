@@ -84,7 +84,7 @@ namespace GoWheels_WebAPI.Service
             var post = await _postService.GetByIdAsync(bookingDTO.PostId);
             var bookingHours = (bookingDTO.ReturnOn - bookingDTO.RecieveOn).TotalHours;
             var bookingDays = (bookingDTO.ReturnOn - bookingDTO.RecieveOn).TotalDays;
-            var isPrePaymentValid = bookingDTO.PrePayment == bookingDTO.Total / 2;
+            var isPrePaymentValid = bookingDTO.PrePayment == bookingDTO.FinalValue / 2;
             var isFinalValueValid = true;
             if (promotionValue > 1)
             {
