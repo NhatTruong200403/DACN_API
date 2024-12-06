@@ -63,15 +63,14 @@ builder.Services.AddHttpContextAccessor();
 //cho vuejs
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAllOrigins",
-        builder =>
-        {
-            builder.WithOrigins("http://127.0.0.1:5500", "http://localhost:5500")
-                   .AllowAnyMethod()
-                   .AllowAnyHeader()
-                   .AllowCredentials();
-        });
+    options.AddPolicy("AllowAll",
+        policy => policy.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
 });
+
+
+
 
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<GoogleApiService>(client =>
@@ -200,13 +199,14 @@ app.Use(async (context, next) =>
     await next();
 });
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseDefaultFiles();
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors("AllowAllOrigins");
+//app.UseCors("AllowSpecificOrigins");
+app.UseCors("AllowAll");
 // Map SignalR Hub
 app.MapHub<NotifyHub>("notifyhub").RequireCors("AllowAllOrigins");
 app.MapControllers();
