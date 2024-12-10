@@ -61,14 +61,25 @@ builder.Services.AddAuthentication(options =>
 });
 builder.Services.AddHttpContextAccessor();
 //cho vuejs
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowAll",
+//        policy => policy.AllowAnyOrigin()
+//                        .AllowAnyMethod()
+//                        .AllowAnyHeader()
+
+//});
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
-        policy => policy.AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader());
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.WithOrigins("http://127.0.0.1:5500", "http://localhost:5173")
+                   .AllowAnyMethod()
+                   .AllowAnyHeader()
+                   .AllowCredentials();
+        });
 });
-
 
 
 
@@ -206,7 +217,7 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 //app.UseCors("AllowSpecificOrigins");
-app.UseCors("AllowAll");
+app.UseCors("AllowAllOrigins"); 
 // Map SignalR Hub
 app.MapHub<NotifyHub>("notifyhub").RequireCors("AllowAllOrigins");
 app.MapControllers();
