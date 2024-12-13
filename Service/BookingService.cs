@@ -6,6 +6,7 @@ using GoWheels_WebAPI.Models.GoogleRespone;
 using GoWheels_WebAPI.Models.ViewModels;
 using GoWheels_WebAPI.Repositories;
 using GoWheels_WebAPI.Utilities;
+using Microsoft.AspNet.SignalR.Messaging;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -212,7 +213,7 @@ namespace GoWheels_WebAPI.Service
                 await _notifyService.AddAsync(notify);
                 if(NotifyHub.userConnectionsDic.TryGetValue(post.UserId!, out var connectionId))
                 {
-                    await _hubContext.Clients.Client(connectionId).SendAsync("RecieveMessage", "System", "New booking request");
+                    await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", "System", "You have new booking request");
                 }    
             }
             catch (DbUpdateException dbEx)
@@ -300,7 +301,10 @@ namespace GoWheels_WebAPI.Service
                 await _notifyService.AddAsync(notify);
                 if (NotifyHub.userConnectionsDic.TryGetValue(booking.UserId!, out var connectionId))
                 {
-                    await _hubContext.Clients.Client(connectionId).SendAsync("RecieveMessage", "System", isAccept ? "Booking accepted" : "Booking denied");
+                    //await _hubContext.Groups.AddToGroupAsync(connectionId, booking.UserId!);
+                    //await _hubContext.Clients.Client(connectionId).SendAsync("RecieveMessage", "System", isAccept ? "Booking accepted" : "Booking denied");
+                    //await _hubContext.Clients.All.SendAsync("ReceiveMessage", "System", "Booking");
+                    await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", "System", isAccept ? "Your booking confirmed by owner" : "Your booking has been denied");
                 }
             }
             catch (DbUpdateException dbEx)

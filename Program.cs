@@ -45,19 +45,19 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!))
     };
     options.SaveToken = true;
-    //options.Events = new JwtBearerEvents
-    //    {
-    //        OnMessageReceived = context =>
-    //        {
-    //            // Đọc token từ query string khi dùng SignalR
-    //            var accessToken = context.Request.Query["access_token"];
-    //            if (!string.IsNullOrEmpty(accessToken))
-    //            {
-    //                context.Token = accessToken;
-    //            }
-    //            return Task.CompletedTask;
-    //        }
-    //    };
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            // Đọc token từ query string khi dùng SignalR
+            var accessToken = context.Request.Query["access_token"];
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 builder.Services.AddHttpContextAccessor();
 //cho vuejs
@@ -66,7 +66,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAllOrigins",
         builder =>
         {
-            builder.WithOrigins("http://127.0.0.1:5500", "http://localhost:5500")
+            builder.WithOrigins("http://127.0.0.1:5500", "http://localhost:5173")
                    .AllowAnyMethod()
                    .AllowAnyHeader()
                    .AllowCredentials();
@@ -187,26 +187,27 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.Use(async (context, next) =>
-{
-    if (context.Request.Query.ContainsKey("access_token"))
-    {
-        var accessToken = context.Request.Query["access_token"];
-        if (!string.IsNullOrEmpty(accessToken))
-        {
-            context.Request.Headers["Authorization"] = $"Bearer {accessToken}";
-        }
-    }
-    await next();
-});
+//app.Use(async (context, next) =>
+//{
+//    if (context.Request.Query.ContainsKey("access_token"))
+//    {
+//        var accessToken = context.Request.Query["access_token"];
+//        if (!string.IsNullOrEmpty(accessToken))
+//        {
+//            context.Request.Headers["Authorization"] = $"Bearer {accessToken}";
+//        }
+//    }
+//    await next();
+//});
 
+app.UseCors("AllowAllOrigins");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseDefaultFiles();
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors("AllowAllOrigins");
+
 // Map SignalR Hub
 app.MapHub<NotifyHub>("notifyhub").RequireCors("AllowAllOrigins");
 app.MapControllers();
