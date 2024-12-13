@@ -56,8 +56,7 @@ namespace GoWheels_WebAPI.Service
             }
             //Lấy từng ngày trong từng bookingDTO ra và gắn vào 
             var bookedDates = bookings
-                            .SelectMany(b => new List<DateTime> { b.RecieveOn, b.ReturnOn }) // Lấy cả hai ngày
-                            .Distinct() // Loại bỏ các ngày trùng lặp
+                            .SelectMany(b => new List<DateTime> { b.RecieveOn, b.ReturnOn }) // Lấy cả hai ngày // Loại bỏ các ngày trùng lặp
                             .ToList();
             return bookedDates;
         }

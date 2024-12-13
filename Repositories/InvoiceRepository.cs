@@ -28,6 +28,7 @@ namespace GoWheels_WebAPI.Repositories
         public List<Invoice> GetAllByUserId(string userId)
             => _context.Invoices.AsNoTracking()
                                         .Include(i => i.Booking)
+                                        .ThenInclude(i => i.Post)
                                         .ThenInclude(b => b.User)
                                         .Include(i => i.DriverBooking)
                                         .ThenInclude(i => i.Driver)
