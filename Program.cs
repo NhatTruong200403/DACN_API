@@ -17,12 +17,13 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 var secretKey = builder.Configuration["Jwt:SecretKey"];//Get SercretKey from appsetting.json
-
+builder.Services.AddDbContext<ApplicationDbContext>(
+        p => p.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL")));
 // Add services to the container.
-var connection = builder.Configuration
+/*var connection = builder.Configuration
                         .GetConnectionString("DefaultConnection")
                         ?? throw new InvalidOperationException("Connection String not found");
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection));
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection));*/
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
