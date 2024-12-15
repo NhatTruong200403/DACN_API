@@ -237,7 +237,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
 
         [HttpPost("Add")]
         [Authorize(Roles = "User")]
-        public ActionResult<OperationResult> Add([FromForm] BookingDTO bookingDTO)
+        public ActionResult<OperationResult> Add([FromBody] BookingDTO bookingDTO)
         {
             try
             {
