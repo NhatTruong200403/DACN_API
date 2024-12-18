@@ -140,7 +140,7 @@ namespace GoWheels_WebAPI.Service
             for (var i = 0; i < distanceMatrixRespone.Rows.Count; i++)
             {
                 var distance = distanceMatrixRespone.Rows[i].Elements[0].Distance?.Value ?? int.MaxValue;
-                if (distance < 10000)
+                if (distance < 5000)
                 {
                     bookingsWithinRange.Add(bookingLocations[i].bookingId);
                 }

@@ -51,7 +51,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpPost("AddToFavorite")]
-        public ActionResult<OperationResult> Add([FromForm] FavoriteDTO favoriteDTO)
+        public ActionResult<OperationResult> Add([FromBody] FavoriteDTO favoriteDTO)
         {
             try
             {
