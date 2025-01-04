@@ -11,12 +11,10 @@ namespace GoWheels_WebAPI.Service.Interface
         Post GetById(int id);
         List<Post> GetAllByUserId();
         List<Post> GetAllByUserId(string userId);
-        void Add(Post post, IFormFile formFile, List<IFormFile> formFiles, List<int> amenitiesIds);
-        void Update(int id, Post post, IFormFile image, List<int> amenitiesIds);
+        void Add(Post post, IFormFile formFile, List<IFormFile> formFiles);
+        void Update(int id, Post post, IFormFile image);
         void UpdatePostImages(List<IFormFile> imageFiles, int postId);
-        void UpdatePostAverageRating(int postId, float avgRating);
         void UpdateRideNumber(int postId, int rideNumber);
         void DeleteById(int id);
-        void DisablePostById(int id);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using GoWheels_WebAPI.Data;
 using GoWheels_WebAPI.Hubs;
-using GoWheels_WebAPI.Infrastructure;
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
 using GoWheels_WebAPI.Models.GoogleRespone;
@@ -17,7 +16,6 @@ namespace GoWheels_WebAPI.Service
     {
         private readonly IBookingRepository _bookingRepository;
         private readonly IPostService _postService;
-        private readonly IDriverService _driverService;
         private readonly ILocatorService _googleApiService;
         private readonly INotifyService _notifyService;
         private readonly IHubContext<NotifyHub> _hubContext;
@@ -28,7 +26,6 @@ namespace GoWheels_WebAPI.Service
 
         public BookingService(IBookingRepository bookingRepository, 
                                 IPostService postService,
-                                IDriverService driverService,
                                 ILocatorService googleApiService,
                                 INotifyService notifyService,
                                 IHubContext<NotifyHub> hubContext,
@@ -37,7 +34,6 @@ namespace GoWheels_WebAPI.Service
         {
             _bookingRepository = bookingRepository;
             _postService = postService;
-            _driverService = driverService;
             _googleApiService = googleApiService;
             _notifyService = notifyService;
             _hubContext = hubContext;
@@ -65,42 +61,13 @@ namespace GoWheels_WebAPI.Service
             return bookedDates;
         }
 
-        public List<Booking> GetAllByOwner()
-            => _bookingRepository.GetAllByOwner(_userId);
+        public List<Booking> GetAllByAdmin()
+            => _bookingRepository.GetAllByAdmin(_userId);
 
 
 
         public List<Booking> GetAllWaitingBookingsByPostId(int postId)
             => _bookingRepository.GetAllWaitingBookingByPostId(postId);
-
-        public async Task<List<Booking>> GetAllDriverRequireBookingsAsync(string latitude, string longitude)
-        {
-            var driverLocationString = $"{latitude},{longitude}";
-            var bookings = _bookingRepository.GetAllDriverRequireBookings();
-            var bookingLocations = new List<(int bookingId, string location)>();
-            foreach (var booking in bookings)
-            {
-                var bookingLocationString = $"{booking.Latitude},{booking.Longitude}";
-                bookingLocations.Add((booking.Id, bookingLocationString));
-            }
-            var respone = await _googleApiService.GetDistanceAsync(bookingLocations, driverLocationString);
-            var orderBookingsId = OrderByDistance(respone, bookingLocations);
-            var bookingsDictionary = bookings.ToDictionary(b => b.Id, b => b);
-            bookings = orderBookingsId.Where(id => bookingsDictionary.ContainsKey(id)).Select(id => bookingsDictionary[id]).ToList();
-            return bookings;
-        }
-
-        private List<int> OrderByDistance(DistanceMatrixRespone distanceMatrixRespone, List<(int bookingId, string location)> bookingLocations)
-        {
-            return bookingLocations.Select((item, index) => new
-                                            {
-                                                BookingId = item.bookingId,
-                                                Distance = distanceMatrixRespone.Rows[index].Elements[0].Distance?.Value ?? int.MaxValue
-                                            })
-                                            .OrderBy(x => x.Distance) // Sắp xếp theo khoảng cách tăng dần
-                                            .Select(x => x.BookingId)
-                                            .ToList();
-        }
 
         public List<Booking> GetAllPendingBookingsByUserId()
             => _bookingRepository.GetAllPendingBookingByUserId(_userId);
@@ -117,33 +84,6 @@ namespace GoWheels_WebAPI.Service
 
         public List<Booking> GetPersonalBookings()
             => _bookingRepository.GetAllPersonalBookings(_userId);
-
-        public List<Booking> GetAllByDriver()
-            => _bookingRepository.GetAllByDriver(_userId);
-
-        public async Task<List<Booking>> GetAllBookingsInRange(string latitude, string longitude)
-        {
-            try
-            {
-                var driverLocationString = $"{latitude},{longitude}";
-                var bookings = _bookingRepository.GetAllDriverRequireBookings();
-                var bookingLocations = new List<(int bookingId, string location)>();
-                foreach(var booking in bookings)
-                {
-                    var bookingLocationString = $"{booking.Latitude},{booking.Longitude}";
-                    bookingLocations.Add((booking.Id, bookingLocationString));
-                }
-                var respone = await _googleApiService.GetDistanceAsync(bookingLocations, driverLocationString);
-                var bookingsWithinRange = FilterBookingsWithinRange(respone, bookingLocations);
-                var bookingInRange = bookings.Where(b => bookingsWithinRange.Any(id => id == b.Id)).ToList();
-                return bookingInRange;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
         private List<int> FilterBookingsWithinRange(DistanceMatrixRespone distanceMatrixRespone, List<(int bookingId, string location)> bookingLocations)
         {
             var bookingsWithinRange = new List<int>();
@@ -199,58 +139,23 @@ namespace GoWheels_WebAPI.Service
 
         public async Task Add(Booking booking)
         {
-            using (var transaction = new TransactionManager(_context))
+            try
             {
-                transaction.BeginTransaction();
-                try
+                var post = _postService.GetById(booking.PostId);
+                if (post.IsDeleted)
                 {
-                    var post = _postService.GetById(booking.PostId);
-                    if (post.IsDisabled)
-                    {
-                        throw new InvalidOperationException("Post unavailable");
-                    }
-                    booking.CreatedById = _userId;
-                    booking.UserId = _userId;
-                    booking.CreatedOn = DateTime.Now;
-                    booking.Status = "Pending";
-                    if ((booking.RecieveOn - DateTime.Now).TotalHours >= 72)
-                    {
-                        if (booking.IsRequireDriver)
-                        {
-                            booking.HasDriver = post.HasDriver;
-                        }
-                        else
-                        {
-                            booking.HasDriver = true;
-                        }
-                    }
-                    else
-                    {
-                        booking.HasDriver = true;
-                    }
-                    _bookingRepository.Add(booking);
-                    var notify = new Notify()
-                    {
-                        BookingId = booking.Id,
-                        UserId = post.UserId,
-                        CreateOn = DateTime.Now,
-                        IsRead = false,
-                        IsDeleted = false,
-                        Content = "You have new booking request"
-                    };
-                    _notifyService.Add(notify);
-                    if (NotifyHub.userConnectionsDic.TryGetValue(post.UserId!, out var connectionId))
-                    {
-                        await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", notify.Content);
-                    }
-                    transaction.Commit();
+                    throw new InvalidOperationException("Post unavailable");
                 }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    throw new Exception(ex.Message);
-                }
-            } 
+                booking.CreatedById = _userId;
+                booking.UserId = _userId;
+                booking.CreatedOn = DateTime.Now;
+                booking.Status = "Pending";
+                _bookingRepository.Add(booking);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }           
         }
 
         public void Update(int id, Booking booking)
@@ -290,53 +195,42 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task UpdateOwnerConfirm(int id, bool isAccept)
+        public async Task ConfirmBooking(int id, bool isAccept)
         {
-            using (var transaction = new TransactionManager(_context))
+            try
             {
-                transaction.BeginTransaction();
-                try
+                var booking = _bookingRepository.GetById(id);
+                booking.ModifiedById = _userId;
+                booking.ModifiedOn = DateTime.Now;
+                booking.Status = isAccept ? "Accept Booking" : "Denied";
+                booking.OwnerConfirm = isAccept;
+                _bookingRepository.Update(booking);
+                var notify = new Notify()
                 {
-                    var booking = _bookingRepository.GetById(id);
-                    if (booking.Post.UserId != _userId)
-                    {
-                        throw new UnauthorizedAccessException("Unauthorize");
-                    }
-                    booking.ModifiedById = _userId;
-                    booking.ModifiedOn = DateTime.Now;
-                    booking.Status = isAccept ? "Accept Booking" : "Denied";
-                    booking.OwnerConfirm = isAccept;
-                    _bookingRepository.Update(booking);
-                    var notify = new Notify()
-                    {
-                        BookingId = booking.Id,
-                        UserId = booking.UserId,
-                        CreateOn = DateTime.Now,
-                        IsDeleted = false,
-                        IsRead = false
-                    };
-                    if (isAccept)
-                    {
-                        await _driverService.SendNotifyToDrivers(booking);
-                        notify.Content = "Your booking confirmed by owner";
-                    }
-                    else
-                    {
-                        notify.Content = "Your booking has been denied";
-                    }
-                    _notifyService.Add(notify);
-                    if (NotifyHub.userConnectionsDic.TryGetValue(booking.UserId!, out var connectionId))
-                    {
-                        await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", notify.Content);
-                    }
-                    transaction.Commit();
-                }
-                catch (Exception ex)
+                    BookingId = booking.Id,
+                    UserId = booking.UserId,
+                    CreateOn = DateTime.Now,
+                    IsDeleted = false,
+                    IsRead = false
+                };
+                if (isAccept)
                 {
-                    transaction.Rollback();
-                    throw new Exception(ex.Message);
+                    notify.Content = "Your booking confirmed by owner";
                 }
-            }        
+                else
+                {
+                    notify.Content = "Your booking has been denied";
+                }
+                _notifyService.Add(notify);
+                if (NotifyHub.userConnectionsDic.TryGetValue(booking.UserId!, out var connectionId))
+                {
+                    await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", notify.Content);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }    
         }
 
         public void UpdateBookingStatus()
@@ -473,7 +367,6 @@ namespace GoWheels_WebAPI.Service
                 }
                 else
                 {
-                    booking.Status = "Request denied";
                     notify.Content = "Your cancellation request has been denied";
                 }
                 booking.IsResponse = true;
@@ -484,42 +377,7 @@ namespace GoWheels_WebAPI.Service
                 if (NotifyHub.userConnectionsDic.TryGetValue(booking.UserId!, out var connectionId))
                 {
                     await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", notify.Content);
-                }
-                if (isAccept)
-                {
-                    var ownerNotify = new Notify()
-                    {
-                        BookingId = booking.Id,
-                        UserId = booking.Post.UserId,
-                        CreateOn = DateTime.Now,
-                        IsRead = false,
-                        IsDeleted = false,
-                        Content = "Your booking request has canceled"
-                    };
-                     _notifyService.Add(notify);
-                    if (NotifyHub.userConnectionsDic.TryGetValue(booking.Post.UserId!, out var userConnectionId))
-                    {
-                        await _hubContext.Clients.Client(userConnectionId).SendAsync("ReceiveMessage", ownerNotify.Content);
-                    }
-                    if (booking.DriverId != null)
-                    {
-                        var driverNotify = new Notify()
-                        {
-                            BookingId = booking.Id,
-                            UserId = booking.DriverId,
-                            CreateOn = DateTime.Now,
-                            IsRead = false,
-                            IsDeleted = false,
-                            Content = "Your selected booking is canceled"
-                        };
-                        _notifyService.Add(notify);
-                        if (NotifyHub.userConnectionsDic.TryGetValue(booking.DriverId, out var driverConnectionId))
-                        {
-                            await _hubContext.Clients.Client(driverConnectionId).SendAsync("ReceiveMessage", driverNotify.Content);
-                        }
-
-                    }
-                }       
+                }     
             }
             catch (Exception ex)
             {
@@ -556,7 +414,6 @@ namespace GoWheels_WebAPI.Service
             {
                 var booking = _bookingRepository.GetById(bookingId);
                 booking.HasDriver = true;
-                booking.DriverId = _userId;
                 booking.FinalValue += 20000 * (decimal)(booking.ReturnOn - booking.RecieveOn).TotalHours;
                 booking.PrePayment = booking.FinalValue / 2;
                 _bookingRepository.Update(booking);
@@ -594,7 +451,6 @@ namespace GoWheels_WebAPI.Service
             {
                 var booking = _bookingRepository.GetById(bookingId);
                 booking.HasDriver = false;
-                booking.DriverId = null;
                 booking.FinalValue -= 20000 * (decimal)(booking.ReturnOn - booking.RecieveOn).TotalHours;
                 booking.PrePayment = booking.FinalValue / 2;
                 _bookingRepository.Update(booking);

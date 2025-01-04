@@ -23,7 +23,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
             _mapper = mapper;
         }
 
-        [HttpGet("GetAll")]
+        /*[HttpGet("GetAll")]
         public ActionResult<OperationResult> GetAll()
         {
             try
@@ -91,6 +91,6 @@ namespace GoWheels_WebAPI.Controllers.Employee
             {
                 return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
             }
-        }
+        }*/
     }
 }

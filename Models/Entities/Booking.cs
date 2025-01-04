@@ -10,16 +10,12 @@ namespace GoWheels_WebAPI.Models.Entities
         public required decimal FinalValue { get; set; }
         public required DateTime RecieveOn { get; set; }
         public required DateTime ReturnOn { get; set; }
-        public required string Longitude { get; set; }
-        public required string Latitude { get; set; }
         public required string Status { get; set; }
         public required bool OwnerConfirm { get; set; }
         public bool IsPay { get; set; } = false;
         public bool IsRequest { get; set; } = false;
         public bool IsResponse { get; set; } = false;
         public bool IsRideCounted { get; set; } = false;
-        public bool IsRequireDriver { get; set; } = false;
-        public bool HasDriver { get; set; } = false;
         public int PostId { get; set; }
         [ValidateNever]
         public Post Post { get; set; } = null!;
@@ -29,9 +25,7 @@ namespace GoWheels_WebAPI.Models.Entities
         [AllowNull]
         public int? PromotionId { get; set; }
         [ValidateNever]
-        public Promotion Promotion { get; set; } = null!;
-        public string? DriverId { get; set; }
-        public Driver Driver { get; set; } = null!;
+        public Promotion? Promotion { get; set; }
 
         public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
     }

@@ -81,54 +81,6 @@ namespace GoWheels_WebAPI.Controllers.Employee
             }
         }
 
-        [HttpGet("GetAllDriverSubmit")]
-        [Authorize(Roles = "Admin, Employee")]
-        public ActionResult<OperationResult> GetAllDriverSubmit()
-        {
-            try
-            {
-                var users = _userService.GetAllDriverSubmit();
-                var userVMs = _mapper.Map<List<UserVM>>(users);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: userVMs);
-            }
-            catch (AutoMapperMappingException mapperEx)
-            {
-                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
-            }
-            catch (Exception ex)
-            {
-                var exMessage = ex.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
-            }
-        }
-
-        [HttpPost("ExamineDriverSubmit")]
-        [Authorize(Roles = "Admin, Employee")]
-        public async Task<ActionResult<OperationResult>> ExamineDriverSubmit([FromForm] string userId, [FromForm] bool isAccept)
-        {
-            try
-            {
-                await _userService.ConfirmDriverSubmit(userId, isAccept);
-                return new OperationResult(true, "Driver submit confirmed", StatusCodes.Status200OK);
-            }
-            catch (NullReferenceException nullEx)
-            {
-                return new OperationResult(false, nullEx.Message, StatusCodes.Status404NotFound);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                return new OperationResult(false, dbEx.Message, StatusCodes.Status500InternalServerError);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                return new OperationResult(false, operationEx.Message, StatusCodes.Status500InternalServerError);
-            }
-            catch (Exception ex)
-            {
-                return new OperationResult(false, ex.Message, StatusCodes.Status400BadRequest);
-            }
-        }
-
         [HttpPut("LockUserAccount/{userId}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<OperationResult>> LockUserAccount(string userId)

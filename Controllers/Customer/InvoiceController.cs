@@ -130,7 +130,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        [HttpGet("CalculateRevenuesByMonth/{year}")]
+        /*[HttpGet("CalculateRevenuesByMonth/{year}")]
         [Authorize(Roles = "User")]
         public ActionResult<OperationResult> CalculateRevenuesByMonth(int year)
         {
@@ -144,6 +144,6 @@ namespace GoWheels_WebAPI.Controllers.Customer
                 var exMessage = ex.Message ?? "An error occurred while updating the database.";
                 return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
             }
-        }
+        }*/
     }
 }

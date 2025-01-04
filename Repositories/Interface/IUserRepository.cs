@@ -5,7 +5,6 @@ namespace GoWheels_WebAPI.Repositories.Interface
 {
     public interface IUserRepository
     {
-        List<ApplicationUser> GetAllSubmitDrivers();
         List<ApplicationUser> GetAllUser();
         Task<ApplicationUser> FindByUserNameAsync(string userName);
         Task<ApplicationUser> FindByUserId(string userId);

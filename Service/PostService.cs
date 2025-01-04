@@ -12,21 +12,15 @@ namespace GoWheels_WebAPI.Service
     {
 
         private readonly IPostRepository _postRepository;
-        private readonly IPostAmenityRepository _postAmenityRepository;
-        private readonly IAmenityService _amenityService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ApplicationDbContext _context;
         private  readonly string _userId;
 
         public PostService(IPostRepository postRepository,
-                            IPostAmenityRepository postAmenityRepository,
-                            IAmenityService amenityService,
                             IHttpContextAccessor httpContextAccessor,
                             ApplicationDbContext context)
         {
             _postRepository = postRepository;
-            _postAmenityRepository = postAmenityRepository;
-            _amenityService = amenityService;
             _httpContextAccessor = httpContextAccessor;
             _context = context;
             _userId = _httpContextAccessor.HttpContext?.User?
@@ -61,35 +55,10 @@ namespace GoWheels_WebAPI.Service
             {
                 query = query.Where(post => post.Seat == filterModel.Seat).ToList();
             }
-
-            if (!string.IsNullOrWhiteSpace(filterModel.Gear))
-            {
-                query = filterModel.Gear switch
-                {
-                    "Số sàn" => query.Where(post => !post.Gear).ToList(),
-                    _ => query.Where(post => post.Gear).ToList()
-                };
-            }
-
-            if (!string.IsNullOrWhiteSpace(filterModel.Fuel))
-            {
-                query = filterModel.Fuel switch
-                {
-                    "Xăng" => query.Where(post => post.Fuel == "Xăng").ToList(),
-                    "Điện" => query.Where(post => post.Fuel == "Điện").ToList(),
-                    _ => query.Where(post => post.Fuel == "Dầu").ToList()
-                };
-            }
-
-            if (filterModel.HasDriver)
-            {
-                query = query.Where(post => post.HasDriver).ToList();
-            }
-
             return query;
         }
 
-        public void Add(Post post, IFormFile formFile, List<IFormFile> formFiles, List<int> amenitiesIds)
+        public void Add(Post post, IFormFile formFile, List<IFormFile> formFiles)
         {
             try
             {
@@ -101,11 +70,7 @@ namespace GoWheels_WebAPI.Service
                 }
                 post.CreatedById = _userId;
                 post.CreatedOn = DateTime.Now;
-                post.UserId = _userId;
-                post.AvgRating = 0;
                 post.IsDeleted = false;
-                post.IsDisabled = false;
-                post.IsHidden = false;
                 _postRepository.Add(post);
                 if (formFiles.Count != 0)
                 {
@@ -117,10 +82,7 @@ namespace GoWheels_WebAPI.Service
 
                     _postRepository.AddPostImages(imgUrls, post.Id);
                 }
-                if (amenitiesIds.Count != 0)
-                {
-                    _postAmenityRepository.AddRange(amenitiesIds, post.Id);
-                }
+
             }
             catch (Exception ex)
             {
@@ -165,38 +127,12 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        private bool IsPostAmenityChange(List<int> selectedAmenities, int existingPostId)
-        {
-            var previousDetails = _postAmenityRepository.GetAmenityByPostId(existingPostId);
-            var amenities = _amenityService.GetAll();
-            foreach (var amenity in amenities)
-            {
-                bool previousChecked = previousDetails != null && previousDetails.Any(c => c.AmenityId.Equals(amenity.Id));
-                bool currentChecked = selectedAmenities.Contains(amenity.Id);
-                if (previousChecked != currentChecked)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private void UpdatePostAmenities(int postId, List<int> amenitiesIds)
-        {
-            _postAmenityRepository.RemoveRange(postId);
-            _postAmenityRepository.AddRange(amenitiesIds, postId);
-        }
-
-        public void Update(int id, Post post, IFormFile image, List<int> amenitiesIds)
+        public void Update(int id, Post post, IFormFile image)
         {
             try
             {
                 var existingPost = _postRepository.GetById(id);
                 var imageUrl = "./wwwroot/images/posts/" + Path.GetFileName(image.FileName);
-                if (_userId != existingPost.UserId)
-                {
-                    throw new UnauthorizedAccessException("Unauthorize");
-                }
                 if (post.Image == null)
                 {
                     post.Image = existingPost.Image;
@@ -209,7 +145,6 @@ namespace GoWheels_WebAPI.Service
                 post.CreatedById = existingPost.CreatedById;
                 post.ModifiedById = existingPost.ModifiedById;
                 post.ModifiedOn = existingPost.ModifiedOn;
-                post.AvgRating = existingPost.AvgRating;
                 post.IsDeleted = existingPost.IsDeleted;
                 post.Favorites = existingPost.Favorites;
                 if (image != null && imageUrl != existingPost.Image)
@@ -221,27 +156,11 @@ namespace GoWheels_WebAPI.Service
                     post.Image = existingPost.Image;
                 }
                 post.Images = existingPost.Images;
-                post.UserId = existingPost.UserId;
-                post.User = existingPost.User;
                 post.CarType = existingPost.CarType;
                 post.Company = existingPost.Company;
-                post.Ratings = existingPost.Ratings;
-                post.Reports = existingPost.Reports;
-                if (amenitiesIds.Contains(0) || amenitiesIds.Count == 0)
-                {
-                    amenitiesIds.Clear();
-                }
-                var isPostAmenitiesChange = IsPostAmenityChange(amenitiesIds, existingPost.Id);
-                if (isPostAmenitiesChange)
-                {
-                    UpdatePostAmenities(existingPost.Id, amenitiesIds);
-                    EditHelper<Post>.SetModifiedIfNecessary(post, true, existingPost, _userId);
-                }
-                else
-                {
-                    var isPostDataChange = EditHelper<Post>.HasChanges(post, existingPost);
-                    EditHelper<Post>.SetModifiedIfNecessary(post, isPostDataChange, existingPost, _userId);
-                }
+               
+                var isPostDataChange = EditHelper<Post>.HasChanges(post, existingPost);
+                EditHelper<Post>.SetModifiedIfNecessary(post, isPostDataChange, existingPost, _userId);
                 _postRepository.Update(post);
             }
             catch (Exception ex)
@@ -268,10 +187,6 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var post = _postRepository.GetById(postId);
-                if (_userId != post.UserId)
-                {
-                    throw new UnauthorizedAccessException("Unauthorize");
-                }
                 var imageUrls = new List<string>();
                 if (imageFiles.Count != 0)
                 {
@@ -291,21 +206,6 @@ namespace GoWheels_WebAPI.Service
                     }
                     _postRepository.AddPostImages(imageUrls, postId);
                 }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public void UpdatePostAverageRating(int postId, float avgRating)
-        {
-            try
-            {
-                var post = _postRepository.GetById(postId);
-                if (post == null) throw new InvalidOperationException("Post not found");
-                post.AvgRating = avgRating;
-                _postRepository.Update(post);
             }
             catch (Exception ex)
             {
@@ -333,10 +233,6 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var post = _postRepository.GetById(id);
-                if (_userId != post.UserId)
-                {
-                    throw new UnauthorizedAccessException("Unauthorize");
-                }
                 post.IsDeleted = true;
                 post.ModifiedById = _userId;
                 post.ModifiedOn = DateTime.Now;
@@ -348,20 +244,5 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public void DisablePostById(int id)
-        {
-            try
-            {
-                var post = _postRepository.GetById(id);
-                post.IsDisabled = true;
-                post.ModifiedById = _userId;
-                post.ModifiedOn = DateTime.Now;
-                _postRepository.Update(post);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
     }
 }

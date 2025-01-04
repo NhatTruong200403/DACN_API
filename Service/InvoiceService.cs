@@ -35,9 +35,6 @@ namespace GoWheels_WebAPI.Service
         public List<Invoice> GetPersonalInvoices()
             => _invoiceRepository.GetAllByUserId(_userId);
 
-        public List<Invoice> GetAllByDriver()
-            => _invoiceRepository.GetAllByDriver(_userId);
-
         public Invoice GetById(int id)
             => _invoiceRepository.GetById(id);
 
@@ -180,11 +177,6 @@ namespace GoWheels_WebAPI.Service
         public async Task<string> ProcessMomoPayment(Booking booking, bool isMobile)
         {
             long price = (long)booking.PrePayment;
-            if (booking.Driver != null)
-            {
-                decimal driverFee = booking.Driver.PricePerHour * (decimal)(booking.ReturnOn - booking.RecieveOn).TotalHours;
-                price += (long)driverFee;
-            }
             string priceStr = price.ToString();
             string bookingIdStr = booking.Id.ToString();
 
@@ -319,7 +311,7 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public List<MonthlyRevenueVM> CalculateRevenuesByMonth(int year)
+        /*public List<MonthlyRevenueVM> CalculateRevenuesByMonth(int year)
         {
             var invoices = _invoiceRepository.GetAllByPostOwner(_userId);
             var monthsRevenues = new List<MonthlyRevenueVM>();
@@ -333,6 +325,6 @@ namespace GoWheels_WebAPI.Service
                 });
             }
             return monthsRevenues;
-        }
+        }*/
     }
 }

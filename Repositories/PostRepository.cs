@@ -68,14 +68,7 @@ namespace GoWheels_WebAPI.Repositories
                                     .Include(p => p.CarType)
                                     .Include(p => p.Company)
                                     .Include(p => p.Images)
-                                    .Include(p => p.Ratings.Where(r => !r.IsDeleted))
-                                    .ThenInclude(r => r.User)
-                                    .Include(p => p.User)
-                                    .Include(p => p.PostAmenities)
-                                    .ThenInclude(p => p.Amenity)
-                                    .Include(p => p.PostPromotions.Where(p => p.Promotion.ExpiredDate > DateTime.Now))
-                                    .ThenInclude(p => p.Promotion)
-                                    .Where(p => !p.IsDeleted && !p.IsDisabled)
+                                    .Where(p => !p.IsDeleted)
                                     .ToList();
 
 
@@ -84,13 +77,7 @@ namespace GoWheels_WebAPI.Repositories
                                     .Include(p => p.CarType)
                                     .Include(p => p.Company)
                                     .Include(p => p.Images)
-                                    .Include(p => p.User)
-                                    .Include(p => p.Ratings.Where(r => !r.IsDeleted))
-                                    .Include(p => p.PostAmenities)
-                                    .ThenInclude(p => p.Amenity)
-                                    .Include(p => p.PostPromotions.Where(p => p.Promotion.ExpiredDate > DateTime.Now))
-                                    .ThenInclude(p => p.Promotion)
-                                    .Where(p => !p.IsDeleted && !p.IsDisabled)
+                                    .Where(p => !p.IsDeleted)
                                     .FirstOrDefault(p => p.Id == id)
                                     ?? throw new NullReferenceException("Post not found");
 
@@ -100,13 +87,7 @@ namespace GoWheels_WebAPI.Repositories
             => _context.Posts.Include(p => p.CarType)
                             .Include(p => p.Company)
                             .Include(p => p.Images)
-                            .Include(p => p.Ratings.Where(r => !r.IsDeleted))
-                            .Include(p => p.User)
-                            .Include(p => p.PostAmenities)
-                            .ThenInclude(p => p.Amenity)
-                            .Include(p => p.PostPromotions.Where(p => p.Promotion.ExpiredDate > DateTime.Now))
-                            .ThenInclude(p => p.Promotion)
-                            .Where(p => !p.IsDeleted && p.UserId == userId)
+                            .Where(p => !p.IsDeleted)
                             .ToList();
     }
 }

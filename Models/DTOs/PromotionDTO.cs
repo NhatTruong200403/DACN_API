@@ -6,7 +6,7 @@ namespace GoWheels_WebAPI.Models.DTOs
 {
     public class PromotionDTO
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [Required]
         public required string Content { get; set; }
@@ -14,7 +14,5 @@ namespace GoWheels_WebAPI.Models.DTOs
         public decimal DiscountValue { get; set; }
         [Required]
         public required DateTime ExpiredDate { get; set; }
-
-        public List<int> PostIds { get; set; } = new List<int>();
     }
 }

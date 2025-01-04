@@ -22,5 +22,7 @@ namespace GoWheels_WebAPI.Models.Entities
         [Required]
         public bool IsDeleted { get; set; } = false;
 
+
+
     }
 }

@@ -6,11 +6,12 @@ using System.Text.Json.Serialization;
 
 namespace GoWheels_WebAPI.Models.ViewModels
 {
-    public class PromotionVM : BaseModelVM
+    public class PromotionVM
     {
+        public int Id { get; set; }
         public string? Content { get; set; }
         public decimal DiscountValue { get; set; }
         public DateTime ExpiredDate { get; set; }
-        public bool IsAdminPromotion { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

@@ -36,15 +36,11 @@ namespace GoWheels_WebAPI.Repositories
 
         public List<Report> GetAll()
             => _context.Reports.AsNoTracking()
-                                        .Include(r => r.Post)
-                                        .Include(r => r.ReportType)
                                         .Where(r => !r.IsDeleted)
                                         .ToList();
 
         public Report GetById(int id)
             => _context.Reports.AsNoTracking()
-                                        .Include(r => r.Post)
-                                        .Include(r => r.ReportType)
                                         .FirstOrDefault(r => !r.IsDeleted && r.Id == id)
                                         ?? throw new NullReferenceException("Report not found");
 

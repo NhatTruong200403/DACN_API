@@ -16,7 +16,6 @@ namespace GoWheels_WebAPI.Controllers.Customer
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
-        private readonly IInvoiceService _invoiceService;
         private IMapper _mapper;
 
         public BookingController(IBookingService bookingService,
@@ -24,7 +23,6 @@ namespace GoWheels_WebAPI.Controllers.Customer
                                     IMapper mapper)
         {
             _bookingService = bookingService;
-            _invoiceService = invoiceService;
             _mapper = mapper;
         }
 
@@ -79,82 +77,12 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
 
-        [HttpGet("GetAllDriverRequireBookings/{latitude}&&{longitude}")]
-        [Authorize(Roles = "Driver")]// getall booking đã sắp xếp cho tài xế theo vị trí 
-        public async Task<ActionResult<OperationResult>> GetAllDriverRequireBookings(string latitude, string longitude)
+        [HttpGet("GetAllByAdmin")]
+        public ActionResult<OperationResult> GetAllByAdmin()
         {
             try
             {
-                var bookings = await _bookingService.GetAllDriverRequireBookingsAsync(latitude, longitude);
-                var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
-            }
-            catch (NullReferenceException nullEx)
-            {
-                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
-            }
-            catch (AutoMapperMappingException mapperEx)
-            {
-                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
-            }
-            catch (Exception ex)
-            {
-                var exMessage = ex.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
-            }
-        }
-
-        [HttpGet("GetAllBookingsInRange/{latitude}&&{longitude}")]
-        [Authorize(Roles = "Driver")]// Lấy booking theo vị trí chỉ định trong map
-        public async Task<ActionResult<OperationResult>> GetAllBookingsInRangeAsync(string latitude, string longitude)
-        {
-            try
-            {
-                var bookings = await _bookingService.GetAllBookingsInRange(latitude, longitude);
-                var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
-            }
-            catch (NullReferenceException nullEx)
-            {
-                return new OperationResult(false, nullEx.Message, StatusCodes.Status204NoContent);
-            }
-            catch (AutoMapperMappingException mapperEx)
-            {
-                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
-            }
-            catch (Exception ex)
-            {
-                var exMessage = ex.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
-            }
-        }
-
-        [HttpGet("GetAllByDriver")]
-        public ActionResult<OperationResult> GetAllByDriver()
-        {
-            try
-            {
-                var bookings = _bookingService.GetAllByDriver();
-                var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
-                return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
-            }
-            catch (AutoMapperMappingException mapperEx)
-            {
-                return new OperationResult(false, mapperEx.Message, StatusCodes.Status422UnprocessableEntity);
-            }
-            catch (Exception ex)
-            {
-                var exMessage = ex.Message ?? "An error occurred while updating the database.";
-                return new OperationResult(false, exMessage, StatusCodes.Status400BadRequest);
-            }
-        }
-
-        [HttpGet("GetAllByOwner")]
-        public ActionResult<OperationResult> GetAllByOwner()
-        {
-            try
-            {
-                var bookings = _bookingService.GetAllByOwner();
+                var bookings = _bookingService.GetAllByAdmin();
                 var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
             }
@@ -256,10 +184,10 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                /*                if (bookingDTO.RecieveOn < DateTime.Now || bookingDTO.ReturnOn < bookingDTO.RecieveOn)
-                                {
-                                    return BadRequest("return date or recieve date invalid");
-                                }*/
+                if (bookingDTO.RecieveOn < DateTime.Now || bookingDTO.ReturnOn < bookingDTO.RecieveOn)
+                {
+                    return BadRequest("return date or recieve date invalid");
+                }
                 if (ModelState.IsValid)
                 {
                     var booking = _mapper.Map<Booking>(bookingDTO);
@@ -288,12 +216,12 @@ namespace GoWheels_WebAPI.Controllers.Customer
         }
 
         [HttpPut("ConfirmBooking")]//Chủ xe xác nhận đơn đặt từ khách hàng
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Admin, Employee")]
         public async Task<ActionResult<OperationResult>> ConfirmBookingAsync([FromForm] int id,[FromForm] bool isAccept)
         {
             try
             {
-                await _bookingService.UpdateOwnerConfirm(id, isAccept);
+                await _bookingService.ConfirmBooking(id, isAccept);
 /*                
                 if(isAccept)
                 {

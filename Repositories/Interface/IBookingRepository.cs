@@ -6,7 +6,7 @@ namespace GoWheels_WebAPI.Repositories.Interface
     {
         List<Booking> GetAllDriverRequireBookings();
         List<Booking> GetAllByDriver(string userId);
-        List<Booking> GetAllByOwner(string userId);
+        List<Booking> GetAllByAdmin(string userId);
         List<Booking> GetAllByPostId(int postId);
         List<Booking> GetAllPersonalBookings(string userId);
         List<Booking> GetAllCancelRequest();

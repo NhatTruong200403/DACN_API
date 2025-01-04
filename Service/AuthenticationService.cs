@@ -155,7 +155,6 @@ namespace GoWheels_WebAPI.Service
                     Name = user.Name,
                     //CreateDate = user.CreateDate,
                     CIC = user.CIC,
-                    IsSubmitDriver = user.IsSubmitDriver,
                     PhoneNumber = user.PhoneNumber,
                     License = user.License,
                     Image = user.Image,

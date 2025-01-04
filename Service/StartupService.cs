@@ -8,18 +8,12 @@ namespace GoWheels_WebAPI.Service
     {
         private readonly IBookingService _bookingService;
         private readonly IPostService _postService;
-        private readonly IPostPromotionService _postPromotionService;
-        private readonly IUserPromotionService _userPromotionService;
 
         public StartupService(IBookingService bookingService,
-                                IPostService postService,
-                                IPostPromotionService postPromotionService,
-                                IUserPromotionService userPromotionService)
+                                IPostService postService)
         {
             _bookingService = bookingService;
             _postService = postService;
-            _postPromotionService = postPromotionService;
-            _userPromotionService = userPromotionService;
         }
 
         public void UpdateBookingsOnStartup()
@@ -65,25 +59,11 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        private void UpdatePostPromotion()
-        {
-            var promotions = _userPromotionService.GetAllByUserRole();
-            foreach (var promotion in promotions)
-            {
-                if (promotion.IsDeleted || promotion.ExpiredDate < DateTime.Now)
-                {
-                    var postPromotions = _postPromotionService.GetAllByPromotionId(promotion.Id);
-                    _postPromotionService.DeletedRange(postPromotions);
-                }
-            }
-        }
-
         public void UpdatePostOnStartup()
         {
             try
             {
                 UpdatePostRideNumber();
-                UpdatePostPromotion();
 
             }
             catch (InvalidOperationException operationEx)

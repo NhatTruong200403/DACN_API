@@ -24,9 +24,6 @@ namespace GoWheels_WebAPI.Repositories
             _context = context;
         }
 
-        public List<ApplicationUser> GetAllSubmitDrivers()
-            => _userManager.Users.Where(u => u.IsSubmitDriver).ToList();
-
         public List<ApplicationUser> GetAllUser()
             => _userManager.Users.ToList();
 
@@ -62,7 +59,7 @@ namespace GoWheels_WebAPI.Repositories
 
 
         public async Task<ApplicationUser> FindByUserId(string userId)
-            => await _userManager.Users.Include(u => u.Driver).FirstOrDefaultAsync(u => u.Id == userId) ?? throw new NullReferenceException("User not found");
+            => await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new NullReferenceException("User not found");
 
         public async Task<ApplicationUser> FindByUserNameAsync(string userName) 
             => await _userManager.FindByNameAsync(userName) ?? throw new NullReferenceException("User not found");

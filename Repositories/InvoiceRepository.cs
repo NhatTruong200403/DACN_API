@@ -19,8 +19,6 @@ namespace GoWheels_WebAPI.Repositories
             => _context.Invoices.AsNoTracking()
                                         .Include(i => i.Booking)
                                         .ThenInclude(b => b.User)
-                                        .ThenInclude(i => i.Driver)
-                                        .ThenInclude(i => i.User)
                                         .OrderByDescending(i => i.CreatedOn)
                                         .ToList();
 
@@ -33,26 +31,9 @@ namespace GoWheels_WebAPI.Repositories
                                         .OrderByDescending(i => i.CreatedOn)
                                         .ToList();
 
-        public List<Invoice> GetAllByDriver(string userId)
-            => _context.Invoices.AsNoTracking()
-                                        .Include(i => i.Booking)
-                                        .ThenInclude(b => b.User)
-                                        .ThenInclude(i => i.Driver)
-                                        .Where(i => i.Booking.DriverId == userId)
-                                        .OrderByDescending(i => i.CreatedOn)
-                                        .ToList();
-        public List<Invoice> GetAllByPostOwner(string userId)
-            => _context.Invoices.AsNoTracking()
-                                        .Include(i => i.Booking)
-                                        .ThenInclude(b => b.Post)
-                                        .Where(i => i.Booking.Post.UserId == userId)
-                                        .OrderByDescending(i => i.CreatedOn)
-                                        .ToList();
-
         public List<Invoice> GetAllRefundInvoices()
             => _context.Invoices.AsNoTracking()
                                         .Include(i => i.Booking)
-                                        .ThenInclude(i => i.Driver)
                                         .ThenInclude(i => i.User)
                                         .Where(i => i.RefundInvoice)
                                         .OrderByDescending(i => i.CreatedOn)
@@ -62,7 +43,6 @@ namespace GoWheels_WebAPI.Repositories
             => _context.Invoices.AsNoTracking()
                                         .Include(i => i.Booking)
                                         .ThenInclude(b => b.User)
-                                        .ThenInclude(d => d.Driver)
                                         .FirstOrDefault(i => i.Id == id)
                                         ?? throw new NullReferenceException("Invoice not found");
 
@@ -70,7 +50,6 @@ namespace GoWheels_WebAPI.Repositories
         public Invoice GetByBookingId(int bookingId)
             => _context.Invoices.Include(i => i.Booking)
                                         .ThenInclude(b => b.User)
-                                        .ThenInclude(d => d.Driver)
                                         .FirstOrDefault(i => i.BookingId == bookingId)
                                         ?? throw new NullReferenceException("Invoice not found");
 

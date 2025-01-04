@@ -13,29 +13,23 @@ namespace GoWheels_WebAPI.Service
     public class UserService : IUserService
     {
         private readonly IUserRepository _autheticationRepository;
-        private readonly IDriverService _driverService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly RedisCacheService _redisCacheService;
         private readonly IMapper _mapper;
         private readonly string _userId;
 
         public UserService(IUserRepository autheticationRepository,
-                            IDriverService driverService,
                             IHttpContextAccessor httpContextAccessor,
                             RedisCacheService redisCacheService,
                             IMapper mapper)
         {
             _autheticationRepository = autheticationRepository;
-            _driverService = driverService;
             _httpContextAccessor = httpContextAccessor;
             _redisCacheService = redisCacheService;
             _mapper = mapper;
             _userId = _httpContextAccessor.HttpContext?.User?
                         .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
-
-        public List<ApplicationUser> GetAllDriverSubmit()
-            => _autheticationRepository.GetAllSubmitDrivers();
 
         public List<ApplicationUser> GetAllUser()
         {
@@ -205,96 +199,6 @@ namespace GoWheels_WebAPI.Service
             {
                 throw new Exception(ex.Message);
             }
-        }
-
-        public async Task UpdateDriverLocationAsync(string longitude, string latitude)
-        {
-            try
-            {
-                var user = await _autheticationRepository.FindByUserId(_userId);
-                var userVM = _mapper.Map<UserVM>(user);
-                userVM.Longitude = longitude;
-                userVM.Latitude = latitude;
-                var userLocation = $"{userVM.Latitude},{userVM.Longitude}";
-                await _redisCacheService.SetDataAsync(_userId, userLocation, TimeSpan.FromMinutes(30));
-            }
-            catch(Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public async Task SendDriverSubmitAsync()
-        {
-
-            try
-            {
-                var user = await _autheticationRepository.FindByUserId(_userId);
-                var userRole = _httpContextAccessor.HttpContext!.User.IsInRole("Driver");
-                if (userRole)
-                {
-                    throw new InvalidOperationException("Account is already a driver");
-                }
-                if (user.IsSubmitDriver)
-                {
-                    throw new InvalidOperationException("Submit already sent");
-                }
-                if (user.License.IsNullOrEmpty() || user.CIC.IsNullOrEmpty())
-                {
-                    throw new InvalidOperationException("License & CIC required");
-                } 
-                user.IsSubmitDriver = true;
-                await _autheticationRepository.UpdateAsync(user);
-            }
-            catch (NullReferenceException nullEx)
-            {
-                throw new NullReferenceException(nullEx.InnerException!.Message);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public async Task ConfirmDriverSubmit(string userId, bool isAccept)
-        {
-            try
-            {
-                var user = await _autheticationRepository.FindByUserId(userId);
-                user.IsSubmitDriver = false;  
-                user.isDriver = isAccept;             
-                await _autheticationRepository.UpdateAsync(user);
-                if (isAccept)
-                {
-                    _driverService.Add(user);
-                    await _autheticationRepository.AddUserToRoleAsync(user, ApplicationRole.Driver);
-                }
-            }
-            catch (NullReferenceException nullEx)
-            {
-                throw new NullReferenceException(nullEx.Message);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-
         }
     }
 }

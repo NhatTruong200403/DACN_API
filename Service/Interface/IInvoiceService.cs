@@ -18,6 +18,6 @@ namespace GoWheels_WebAPI.Service.Interface
         Task<string> ProcessMomoPayment(Booking booking, bool isMobile);
         void ProcessReturnUrl(IQueryCollection queryParams);
         //Task CalculateRevenuesByYears
-        List<MonthlyRevenueVM> CalculateRevenuesByMonth(int year);
+        //List<MonthlyRevenueVM> CalculateRevenuesByMonth(int year);
     }
 }
