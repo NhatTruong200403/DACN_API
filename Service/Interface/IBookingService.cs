@@ -6,19 +6,15 @@ namespace GoWheels_WebAPI.Service.Interface
     public interface IBookingService
     {
         List<DateTime> GetBookedDateByPostId(int postId);
-        List<Booking> GetAllWaitingBookingsByPostId(int postId);
-        List<Booking> GetAllPendingBookingsByUserId();
+        List<Booking> GetAllPendingBookings();
         List<Booking> GetAll();
         List<Booking> GetAllCompleteBooking();
         List<Booking> GetAllCancelRequest();
         List<Booking> GetPersonalBookings();
-        List<Booking> GetAllByAdmin();
         Booking GetById(int id);
         bool CheckBookingValue(BookingDTO bookingDTO, decimal promotionValue);
-        Task Add(Booking booking);
+        void Add(Booking booking);
         void Update(int id, Booking booking);
-        Task AddDriverToBookingAsync(int bookingId);
-        Task RemoveDriverFromBookingAsync(int bookingId);
         Task ConfirmBooking(int id, bool isAccept);
         void UpdateBookingStatus();
         void Delete(int id);
