@@ -306,24 +306,16 @@ namespace GoWheels_WebAPI.Service
                 }
                 existingBooking.ModifiedById = _userId;
                 existingBooking.ModifiedOn = DateTime.Now;
-                if (existingBooking.HasDriver)
+                if (existingBooking.IsPay)
                 {
                     existingBooking.IsRequest = true;
                     existingBooking.Status = "Processing";
                 }
                 else
                 {
-                    if (existingBooking.IsPay)
-                    {
-                        existingBooking.IsRequest = true;
-                        existingBooking.Status = "Processing";
-                    }
-                    else
-                    {
-                        existingBooking.IsRequest = true;
-                        existingBooking.IsResponse = true;
-                        existingBooking.Status = "Canceled";
-                    }
+                    existingBooking.IsRequest = true;
+                    existingBooking.IsResponse = true;
+                    existingBooking.Status = "Canceled";
                 }
                 _bookingRepository.Update(existingBooking);
             }
@@ -413,7 +405,6 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var booking = _bookingRepository.GetById(bookingId);
-                booking.HasDriver = true;
                 booking.FinalValue += 20000 * (decimal)(booking.ReturnOn - booking.RecieveOn).TotalHours;
                 booking.PrePayment = booking.FinalValue / 2;
                 _bookingRepository.Update(booking);
@@ -450,7 +441,6 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var booking = _bookingRepository.GetById(bookingId);
-                booking.HasDriver = false;
                 booking.FinalValue -= 20000 * (decimal)(booking.ReturnOn - booking.RecieveOn).TotalHours;
                 booking.PrePayment = booking.FinalValue / 2;
                 _bookingRepository.Update(booking);

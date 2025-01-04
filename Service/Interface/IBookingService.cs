@@ -13,7 +13,6 @@ namespace GoWheels_WebAPI.Service.Interface
         List<Booking> GetAllCancelRequest();
         List<Booking> GetPersonalBookings();
         List<Booking> GetAllByAdmin();
-        Task<List<Booking>> GetAllBookingsInRange(string latitude, string longitude);
         Booking GetById(int id);
         bool CheckBookingValue(BookingDTO bookingDTO, decimal promotionValue);
         Task Add(Booking booking);
