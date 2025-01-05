@@ -21,7 +21,7 @@ namespace GoWheels_WebAPI.Payment
                     HttpResponseMessage response = await client.PostAsync(endpoint, content);
 
                     // Đảm bảo yêu cầu đã thành công
-                    response.EnsureSuccessStatusCode();
+                    /response.EnsureSuccessStatusCode();
 
                     // Đọc nội dung phản hồi bất đồng bộ
                     string jsonResponse = await response.Content.ReadAsStringAsync();

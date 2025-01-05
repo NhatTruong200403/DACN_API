@@ -174,9 +174,9 @@ namespace GoWheels_WebAPI.Service
             }
         }
 
-        public async Task<string> ProcessMomoPayment(Booking booking, bool isMobile)
+        public async Task<string> ProcessMomoPayment(Booking booking)
         {
-            long price = (long)booking.PrePayment;
+            decimal price = booking.PrePayment;
             string priceStr = price.ToString();
             string bookingIdStr = booking.Id.ToString();
 
@@ -184,10 +184,6 @@ namespace GoWheels_WebAPI.Service
             string serectkey = _configuration.GetValue<string>("MomoAPI:Serectkey") ?? string.Empty;
             string accessKey = _configuration.GetValue<string>("MomoAPI:AccessKey") ?? string.Empty;
             string returnUrl = _configuration.GetValue<string>("MomoAPI:ReturnUrl") ?? string.Empty;
-            if (isMobile)
-            {
-                returnUrl = _configuration.GetValue<string>("MomoAPI:MobileReturnUrl") ?? string.Empty;
-            }
             string notifyUrl = _configuration.GetValue<string>("MomoAPI:NotifyUrl") ?? string.Empty;
             string partnerCode = _configuration.GetValue<string>("MomoAPI:PartnerCode") ?? string.Empty;
 
@@ -198,7 +194,7 @@ namespace GoWheels_WebAPI.Service
             string requestId = DateTime.Now.Ticks.ToString();
             string extraData = bookingIdStr;
             // Create the signature
-            string rawHash = $"partnerCode={partnerCode}&accessKey={accessKey}&requestId={requestId}&amount={amount}&orderId={orderid}&orderInfo={orderInfo}&returnUrl={returnUrl}&notifyUrl={notifyUrl}&extraData={extraData}";
+            string rawHash = $"partnerCode={partnerCode}&accessKey={accessKey}&requestId={requestId}&amount={amount}&orderId={bookingIdStr}&orderInfo={orderInfo}&returnUrl={returnUrl}&notifyUrl={notifyUrl}&extraData={extraData}";
 
             MomoSecurity crypto = new();
             string signature = crypto.signSHA256(rawHash, serectkey);
@@ -234,7 +230,7 @@ namespace GoWheels_WebAPI.Service
 
             // Send payment request through the repository
             var jsonResponse = await PaymentRequest.SendPaymentRequestAsync(endpoint, message.ToString());
-            return jsonResponse;
+            return jsonResponse;    
         }
 
         public void ProcessReturnUrl(IQueryCollection queryParams)

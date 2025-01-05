@@ -15,7 +15,7 @@ namespace GoWheels_WebAPI.Service.Interface
         void Update(Invoice invoice);
         void Refund(Booking booking, bool isAccept);
         void RefundReportedBooking(Booking booking);
-        Task<string> ProcessMomoPayment(Booking booking, bool isMobile);
+        Task<string> ProcessMomoPayment(Booking booking);
         void ProcessReturnUrl(IQueryCollection queryParams);
         //Task CalculateRevenuesByYears
         //List<MonthlyRevenueVM> CalculateRevenuesByMonth(int year);
