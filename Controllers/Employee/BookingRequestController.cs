@@ -28,6 +28,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
 
 
         [HttpGet("GetAllCancelRequest")]
+        [Authorize(Roles = "Admin, Employee")]
         public ActionResult<OperationResult> GetAllCancelRequest()//Get tất cả các hủy booking 
         {
             try
@@ -53,6 +54,7 @@ namespace GoWheels_WebAPI.Controllers.Employee
 
 
         [HttpPost("ExamineCancelBooking/{bookingId}&&{isAccept}")]
+        [Authorize(Roles = "Admin, Employee")]
         public async Task<ActionResult<OperationResult>> ExamineCancelBooking(int bookingId, bool isAccept) // Xác nhận hủy booking của User từ Employee
         {
             try

@@ -38,28 +38,7 @@ namespace GoWheels_WebAPI.Repositories
                                         .OrderByDescending(b => b.CreatedOn)
                                         .ToList();
 
-        public List<Booking> GetAllDriverRequireBookings()
-            => _context.Bookings.AsNoTracking()
-                                        .Include(b => b.User)
-                                        .Include(b => b.Post)
-                                        .Include(b => b.Promotion)
-                                        .Where(b => !b.IsDeleted
-                                                    && b.OwnerConfirm
-                                                    && b.Status.Equals("Accept Booking")
-                                                    && b.IsRequireDriver
-                                                    && !b.HasDriver)
-                                        .OrderByDescending(b => b.CreatedOn)
-                                        .ToList();
-
-        public List<Booking> GetAllByDriver(string userId)
-            => _context.Bookings.AsNoTracking()
-                                        .Include(b => b.User)
-                                        .Include(b => b.Post)
-                                        .Include(b => b.Promotion)
-                                        .Where(b => !b.IsDeleted
-                                                    && b.OwnerConfirm)
-                                        .OrderByDescending(b => b.CreatedOn)
-                                        .ToList();
+        
 
 
         public List<Booking> GetAllByPostId(int postId)
@@ -69,17 +48,6 @@ namespace GoWheels_WebAPI.Repositories
                                         .Include(b => b.Promotion)
                                         .Where(b => !b.IsDeleted
                                                         && b.PostId == postId
-                                                        && b.OwnerConfirm
-                                                        && b.RecieveOn > DateTime.Now)
-                                        .OrderByDescending(b => b.CreatedOn)
-                                        .ToList();
-
-        public List<Booking> GetAllByAdmin(string userId)
-            => _context.Bookings.AsNoTracking()
-                                        .Include(b => b.User)
-                                        .Include(b => b.Post)
-                                        .Include(b => b.Promotion)
-                                        .Where(b => !b.IsDeleted
                                                         && b.OwnerConfirm
                                                         && b.RecieveOn > DateTime.Now)
                                         .OrderByDescending(b => b.CreatedOn)
@@ -102,29 +70,12 @@ namespace GoWheels_WebAPI.Repositories
                                         .OrderByDescending(b => b.CreatedOn)
                                         .ToList();
 
-        public List<Booking> GetAllUnRecieveBookingByPostId(int postId)
+        public List<Booking> GetAllPendingBooking()
             => _context.Bookings.AsNoTracking()
                                         .Include(b => b.Post)
                                         .Include(b => b.User)
                                         .Include(b => b.Promotion)
-                                        .Where(b => b.PostId == postId && b.RecieveOn > DateTime.Now && !b.IsResponse)
-                                        .OrderByDescending(b => b.CreatedOn)
-                                        .ToList();
-
-        public List<Booking> GetAllWaitingBookingByPostId(int postId)
-            => _context.Bookings.AsNoTracking()
-                                        .Include(b => b.Post)
-                                        .Include(b => b.User)
-                                        .Where(b => b.PostId == postId && b.Status == "Waiting")
-                                        .OrderByDescending(b => b.CreatedOn)
-                                        .ToList();
-
-        public List<Booking> GetAllPendingBookingByUserId(string userId)
-            => _context.Bookings.AsNoTracking()
-                                        .Include(b => b.Post)
-                                        .Include(b => b.User)
-                                        .Include(b => b.Promotion)
-                                        .Where(b => b.UserId == userId && b.Status == "Pending" && !b.IsPay)
+                                        .Where(b => b.Status == "Pending" && !b.IsPay)
                                         .OrderByDescending(b => b.CreatedOn)
                                         .ToList();
 

@@ -9,6 +9,8 @@ namespace GoWheels_WebAPI.Models.ViewModels
         public decimal FinalValue { get; set; }
         public DateTime RecieveOn { get; set; }
         public DateTime ReturnOn { get; set; }
+        public string? Longitude { get; set; }
+        public string? Latitude { get; set; }
         public string? Status { get; set; }
         public bool IsRequest { get; set; }
         public bool IsResponse { get; set; }

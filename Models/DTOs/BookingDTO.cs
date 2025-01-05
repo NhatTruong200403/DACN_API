@@ -12,6 +12,10 @@ namespace GoWheels_WebAPI.Models.DTOs
         public decimal FinalValue { get; set; }
         public DateTime RecieveOn { get; set; }
         public DateTime ReturnOn { get; set; }
+        [Required]
+        public string Longitude { get; set; } = null!;
+        [Required]
+        public string Latitude { get; set; } = null!;
         public int PostId { get; set; }
 
         [AllowNull]

@@ -2,7 +2,6 @@
 using GoWheels_WebAPI.Hubs;
 using GoWheels_WebAPI.Models.DTOs;
 using GoWheels_WebAPI.Models.Entities;
-using GoWheels_WebAPI.Models.GoogleRespone;
 using GoWheels_WebAPI.Repositories.Interface;
 using GoWheels_WebAPI.Service.Interface;
 using GoWheels_WebAPI.Utilities;
@@ -20,7 +19,6 @@ namespace GoWheels_WebAPI.Service
         private readonly INotifyService _notifyService;
         private readonly IHubContext<NotifyHub> _hubContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ApplicationDbContext _context;
         private readonly string _userId;
 
 
@@ -29,8 +27,7 @@ namespace GoWheels_WebAPI.Service
                                 ILocatorService googleApiService,
                                 INotifyService notifyService,
                                 IHubContext<NotifyHub> hubContext,
-                                IHttpContextAccessor httpContextAccessor,
-                                ApplicationDbContext context)
+                                IHttpContextAccessor httpContextAccessor)
         {
             _bookingRepository = bookingRepository;
             _postService = postService;
@@ -38,13 +35,9 @@ namespace GoWheels_WebAPI.Service
             _notifyService = notifyService;
             _hubContext = hubContext;
             _httpContextAccessor = httpContextAccessor;
-            _context = context;
             _userId = _httpContextAccessor.HttpContext?.User?
                      .FindFirstValue(ClaimTypes.NameIdentifier) ?? "UnknownUser";
         }
-
-        public List<Booking> GetAllUnRecieveBookingsByPostId(int postId)
-            => _bookingRepository.GetAllUnRecieveBookingByPostId(postId);
 
 
         public List<DateTime> GetBookedDateByPostId(int postId)
@@ -61,16 +54,9 @@ namespace GoWheels_WebAPI.Service
             return bookedDates;
         }
 
-        public List<Booking> GetAllByAdmin()
-            => _bookingRepository.GetAllByAdmin(_userId);
 
-
-
-        public List<Booking> GetAllWaitingBookingsByPostId(int postId)
-            => _bookingRepository.GetAllWaitingBookingByPostId(postId);
-
-        public List<Booking> GetAllPendingBookingsByUserId()
-            => _bookingRepository.GetAllPendingBookingByUserId(_userId);
+        public List<Booking> GetAllPendingBookings()
+            => _bookingRepository.GetAllPendingBooking();
 
         public List<Booking> GetAll()
             => _bookingRepository.GetAll();
@@ -84,19 +70,6 @@ namespace GoWheels_WebAPI.Service
 
         public List<Booking> GetPersonalBookings()
             => _bookingRepository.GetAllPersonalBookings(_userId);
-        private List<int> FilterBookingsWithinRange(DistanceMatrixRespone distanceMatrixRespone, List<(int bookingId, string location)> bookingLocations)
-        {
-            var bookingsWithinRange = new List<int>();
-            for (var i = 0; i < distanceMatrixRespone.Rows.Count; i++)
-            {
-                var distance = distanceMatrixRespone.Rows[i].Elements[0].Distance?.Value ?? int.MaxValue;
-                if (distance < 7000)
-                {
-                    bookingsWithinRange.Add(bookingLocations[i].bookingId);
-                }
-            }
-            return bookingsWithinRange;
-        }
 
         public Booking GetById(int id)
             => _bookingRepository.GetById(id);
@@ -137,7 +110,7 @@ namespace GoWheels_WebAPI.Service
             return false;
         }
 
-        public async Task Add(Booking booking)
+        public void Add(Booking booking)
         {
             try
             {
@@ -398,79 +371,6 @@ namespace GoWheels_WebAPI.Service
                 throw new Exception(ex.Message);
             }
 
-        }
-
-        public async Task AddDriverToBookingAsync(int bookingId)
-        {
-            try
-            {
-                var booking = _bookingRepository.GetById(bookingId);
-                booking.FinalValue += 20000 * (decimal)(booking.ReturnOn - booking.RecieveOn).TotalHours;
-                booking.PrePayment = booking.FinalValue / 2;
-                _bookingRepository.Update(booking);
-                var notify = new Notify()
-                {
-                    BookingId = booking.Id,
-                    UserId = booking.UserId,
-                    CreateOn = DateTime.Now,
-                    IsRead = false,
-                    IsDeleted = false,
-                    Content = "The driver has accepted your booking"
-                };
-                _notifyService.Add(notify);
-                if (NotifyHub.userConnectionsDic.TryGetValue(booking.UserId!, out var connectionId))
-                {
-                    await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", notify.Content);
-                }
-            }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-        public async Task RemoveDriverFromBookingAsync(int bookingId)
-        {
-            try
-            {
-                var booking = _bookingRepository.GetById(bookingId);
-                booking.FinalValue -= 20000 * (decimal)(booking.ReturnOn - booking.RecieveOn).TotalHours;
-                booking.PrePayment = booking.FinalValue / 2;
-                _bookingRepository.Update(booking);
-                var notify = new Notify()
-                {
-                    BookingId = booking.Id,
-                    UserId = booking.UserId,
-                    CreateOn = DateTime.Now,
-                    IsRead = false,
-                    IsDeleted = false,
-                    Content = "Your booking driver has cancel"
-                };
-                _notifyService.Add(notify);
-                if (NotifyHub.userConnectionsDic.TryGetValue(booking.UserId!, out var connectionId))
-                {
-                    await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", notify.Content);
-                }
-            }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
         }
     }
 }

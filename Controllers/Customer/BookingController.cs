@@ -82,7 +82,7 @@ namespace GoWheels_WebAPI.Controllers.Customer
         {
             try
             {
-                var bookings = _bookingService.GetAllByAdmin();
+                var bookings = _bookingService.GetAll();
                 var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
             }
@@ -97,13 +97,13 @@ namespace GoWheels_WebAPI.Controllers.Customer
             }
         }
 
-        [HttpGet("GetAllPendingBookingsByUserId")] // chủ xe
-        [Authorize(Roles = "User")]
-        public ActionResult<OperationResult> GetAllPendingBookingsByUserId()
+        [HttpGet("GetAllPendingBookings")] // chủ xe
+        [Authorize(Roles = "Admin, Employee")]
+        public ActionResult<OperationResult> GetAllPendingBookings()
         {
             try
             {
-                var bookings = _bookingService.GetAllPendingBookingsByUserId();
+                var bookings = _bookingService.GetAllPendingBookings();
                 var bookingVMs = _mapper.Map<List<BookingVM>>(bookings);
                 return new OperationResult(true, statusCode: StatusCodes.Status200OK, data: bookingVMs);
             }
