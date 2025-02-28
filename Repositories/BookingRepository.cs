@@ -38,7 +38,30 @@ namespace GoWheels_WebAPI.Repositories
                                         .OrderByDescending(b => b.CreatedOn)
                                         .ToList();
 
+<<<<<<< Updated upstream
         
+=======
+        public List<Booking> GetAllDriverRequireBookings()
+            => _context.Bookings.AsNoTracking()
+                                        .Include(b => b.User)
+                                        .Include(b => b.Post)
+                                        .Include(b => b.Promotion)
+                                        .Where(b => !b.IsDeleted
+                                                    && b.OwnerConfirm
+                                                    && b.Status.Equals("Accept Booking"))
+                                        .OrderByDescending(b => b.CreatedOn)
+                                        .ToList();
+
+        public List<Booking> GetAllByDriver(string userId)
+            => _context.Bookings.AsNoTracking()
+                                        .Include(b => b.User)
+                                        .Include(b => b.Post)
+                                        .Include(b => b.Promotion)
+                                        .Where(b => !b.IsDeleted
+                                                    && b.OwnerConfirm)
+                                        .OrderByDescending(b => b.CreatedOn)
+                                        .ToList();
+>>>>>>> Stashed changes
 
 
         public List<Booking> GetAllByPostId(int postId)
