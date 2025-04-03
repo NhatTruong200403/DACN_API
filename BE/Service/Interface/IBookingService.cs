@@ -19,11 +19,11 @@ namespace GoWheels_WebAPI.Service.Interface
         Task<List<Booking>> GetAllBookingsInRange(string latitude, string longitude);
         Booking GetById(int id);
         bool CheckBookingValue(BookingDTO bookingDTO, decimal promotionValue);
-        Task Add(Booking booking);
+        void Add(Booking booking);
         void Update(int id, Booking booking);
         Task AddDriverToBookingAsync(int bookingId);
         Task RemoveDriverFromBookingAsync(int bookingId);
-        Task UpdateOwnerConfirm(int id, bool isAccept);
+        void UpdateOwnerConfirm(int id, bool isAccept);
         void UpdateBookingStatus();
         void Delete(int id);
         void RequestCancelBooking(int id);

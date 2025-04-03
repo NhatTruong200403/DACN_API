@@ -120,18 +120,6 @@ namespace GoWheels_WebAPI.Service
                 existingUser.Image = user.Image == null ? existingUser.Image : await SaveImage(Image);
                 await _autheticationRepository.UpdateAsync(existingUser);
             }
-            catch (NullReferenceException nullEx)
-            {
-                throw new NullReferenceException(nullEx.InnerException!.Message);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.InnerException!.Message);
-            }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
@@ -245,18 +233,6 @@ namespace GoWheels_WebAPI.Service
                 } 
                 user.IsSubmitDriver = true;
                 await _autheticationRepository.UpdateAsync(user);
-            }
-            catch (NullReferenceException nullEx)
-            {
-                throw new NullReferenceException(nullEx.InnerException!.Message);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.Message);
             }
             catch (Exception ex)
             {

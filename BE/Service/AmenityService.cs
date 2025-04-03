@@ -39,14 +39,6 @@ namespace GoWheels_WebAPI.Service
                 }
                 _amenityRepository.Add(amenity);
             }
-            catch (DbUpdateException dbEx)
-            {
-                throw new DbUpdateException(dbEx.InnerException!.Message);
-            }
-            catch (InvalidOperationException operationEx)
-            {
-                throw new InvalidOperationException(operationEx.InnerException!.Message);
-            }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
