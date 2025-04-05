@@ -218,6 +218,10 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var user = await _autheticationRepository.FindByUserId(_userId);
+                if(user == null)
+                {
+                    throw new NullReferenceException("User not found");
+                }    
                 var userRole = _httpContextAccessor.HttpContext!.User.IsInRole("Driver");
                 if (userRole)
                 {

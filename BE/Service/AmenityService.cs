@@ -30,6 +30,10 @@ namespace GoWheels_WebAPI.Service
         {
             try
             {
+                if(amenity.Name == null)
+                {
+                    throw new InvalidDataException("Name is required");
+                }    
                 amenity.CreatedById = _userId;
                 amenity.CreatedOn = DateTime.Now;
                 amenity.IsDeleted = false;

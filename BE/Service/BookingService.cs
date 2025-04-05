@@ -276,6 +276,10 @@ namespace GoWheels_WebAPI.Service
             try
             {
                 var booking = _bookingRepository.GetById(id);
+                if (booking == null)
+                {
+                    throw new NullReferenceException("Booking not found");
+                }
                 if (booking.Post.UserId != _userId)
                 {
                     throw new UnauthorizedAccessException("Unauthorize");
